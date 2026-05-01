@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cocheras y Pisos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{display:flex;justify-content:center;background:var(--color-background-tertiary);}
+  .calc{font-family:'Syne',sans-serif;width:420px;background:var(--color-background-primary);border:1.5px solid var(--color-border-secondary);border-radius:18px;overflow:hidden;margin:20px auto;}
+  .calc-header{background:#1a1a2e;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;}
+  .calc-header svg{width:22px;height:22px;flex-shrink:0;}
+  .calc-header h1{font-size:14px;font-weight:700;color:#fff;}
+  .calc-header p{font-size:9px;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;margin-top:1px;}
+  .summary-bar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1.5px solid var(--color-border-secondary);}
+  .sum-cell{padding:8px 8px;border-right:0.5px solid var(--color-border-tertiary);text-align:center;}
+  .sum-cell:last-child{border-right:none;}
+  .sum-label{font-size:8px;color:var(--color-text-tertiary);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.4px;}
+  .sum-val{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--color-text-primary);margin-top:2px;}
+  .sum-val.green{color:#1D9E75;}
+  .sum-val.amber{color:#BA7517;}
+  .sum-val.blue{color:#2a4abf;}
+  .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1.5px solid var(--color-border-secondary);}
+  .tab-btn{padding:10px 0;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-secondary);border:none;cursor:pointer;border-bottom:2.5px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;border-right:0.5px solid var(--color-border-tertiary);}
+  .tab-btn:last-child{border-right:none;}
+  .tab-btn.active{background:var(--color-background-primary);color:#2a4abf;border-bottom-color:#2a4abf;}
+  .tab-btn.active.amber-tab{color:#c07010;border-bottom-color:#e8a84a;}
+  .tab-btn.active.green-tab{color:#0F6E56;border-bottom-color:#1D9E75;}
+  .tab-btn svg{width:13px;height:13px;flex-shrink:0;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* PLAZAS / PISOS */
+  .plaza-sep{display:flex;align-items:center;gap:0;padding:6px 12px;border-bottom:0.5px solid #c5d0f0;border-top:0.5px solid #c5d0f0;}
+  .plaza-sep.coch{background:#eef2ff;border-color:#c5d0f0;}
+  .plaza-sep.piso{background:#ecfdf5;border-color:#a7f3d0;}
+  @media(prefers-color-scheme:dark){
+    .plaza-sep.coch{background:#1c2245;border-color:#2a3568;}
+    .plaza-sep.piso{background:#052e16;border-color:#064e3b;}
+    .sep-num-input,.sep-name-input{color:#8ba4e8!important;}
+    .sep-num-input.piso,.sep-name-input.piso{color:#34d399!important;}
+    .sep-estado.ocupada{background:#0e3326!important;color:#4ecb97!important;}
+    .sep-estado.libre{background:#2a2a2a!important;color:#888!important;}
+    .sep-estado.pendiente{background:#3a2a00!important;color:#e0a030!important;}
+  }
+  .sep-num-input{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#2a4abf;width:52px;background:transparent;border:0.5px solid transparent;border-radius:5px;padding:2px 4px;}
+  .sep-num-input.piso{color:#0F6E56;}
+  .sep-num-input:focus{outline:none;border-color:#2a4abf;background:#fff;}
+  .sep-num-input.piso:focus{border-color:#1D9E75;}
+  .sep-name-input{font-size:13px;font-weight:500;color:#2a4abf;flex:1;background:transparent;border:0.5px solid transparent;border-radius:5px;padding:2px 6px;font-family:'Syne',sans-serif;margin:0 6px;}
+  .sep-name-input.piso{color:#0F6E56;}
+  .sep-name-input:focus{outline:none;border-color:#2a4abf;background:#fff;}
+  .sep-name-input.piso:focus{border-color:#1D9E75;}
+  .sep-name-input::placeholder{color:#aab5e0;font-style:italic;}
+  .sep-name-input.piso::placeholder{color:#6ee7b7;font-style:italic;}
+  .sep-estado{font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:4px;background:#dce8fc;color:#2a4abf;flex-shrink:0;}
+  .sep-estado.ocupada{background:#dcf5ec;color:#0F6E56;}
+  .sep-estado.libre{background:#eeeee8;color:#5F5E5A;}
+  .sep-estado.pendiente{background:#faeeda;color:#854F0B;}
+  .btn-del{background:none;border:none;cursor:pointer;color:#c0c8e0;padding:2px 4px;border-radius:4px;font-size:14px;line-height:1;flex-shrink:0;}
+  .btn-del:hover{color:#e24b4a;background:#fcebeb;}
+
+  .plaza-fields{display:grid;grid-template-columns:1fr 1fr;padding:10px 12px 6px;border-bottom:1.5px solid var(--color-border-secondary);}
+  .pf{padding:3px 5px;}
+  .pf-label{font-size:9px;color:var(--color-text-tertiary);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:3px;}
+  .pf-input{font-family:'Syne',sans-serif;font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:5px 8px;width:100%;color:var(--color-text-primary);}
+  .pf-input:focus{outline:none;border-color:#2a4abf;}
+  .pf-input.piso-input:focus{border-color:#1D9E75;}
+  select.pf-input{cursor:pointer;}
+  .key-row{display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:5px 8px;}
+  .key-row input{accent-color:#1D9E75;cursor:pointer;width:13px;height:13px;flex-shrink:0;}
+  .key-row span{font-size:11px;color:var(--color-text-secondary);font-family:'JetBrains Mono',monospace;}
+  .key-row.has-key span{color:#1D9E75;}
+
+  .obs-row{padding:4px 17px 10px;border-bottom:1.5px solid var(--color-border-secondary);}
+  .obs-textarea{font-family:'Syne',sans-serif;font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:6px 8px;width:100%;color:var(--color-text-primary);resize:none;height:46px;line-height:1.4;}
+  .obs-textarea:focus{outline:none;border-color:#2a4abf;}
+  .obs-textarea.piso-input:focus{border-color:#1D9E75;}
+  .obs-textarea::placeholder{color:var(--color-text-tertiary);font-style:italic;}
+
+  .btn-nueva{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 24px);margin:10px 12px;padding:9px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:none;color:#2a4abf;border:1px dashed #8ba4e8;border-radius:8px;cursor:pointer;}
+  .btn-nueva:hover{background:#eef2ff;border-color:#2a4abf;}
+  .btn-nueva.green{color:#0F6E56;border-color:#6ee7b7;}
+  .btn-nueva.green:hover{background:#ecfdf5;border-color:#1D9E75;}
+  .btn-nueva svg{width:14px;height:14px;}
+
+  /* PAGOS */
+  .pagos-panel{background:#fff8f0;padding:14px 12px;}
+  @media(prefers-color-scheme:dark){
+    .pagos-panel{background:#241c0a;}
+    .pagos-panel .pf-input{background:#2a1f0a;border-color:#4a3010;color:#f0d090;}
+    .pagos-panel .pf-input:focus{border-color:#e8a84a;}
+  }
+  .pagos-header{display:flex;align-items:center;gap:7px;margin-bottom:12px;}
+  .pagos-icon{width:22px;height:22px;background:#e8a84a;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .pagos-icon svg{width:13px;height:13px;}
+  .pagos-title{font-size:12px;font-weight:700;color:#a06010;}
+  .pago-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
+  .pago-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;}
+  .pago-row2{display:grid;grid-template-columns:2fr 1fr;gap:6px;}
+  .pagos-panel .pf-input{background:#fff3e0;border:0.5px solid #e8c07a;}
+  .btn-pago{width:100%;padding:8px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:#e8a84a;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+  .btn-pago:hover{opacity:0.85;}
+
+  /* tipo badge en selector */
+  .tipo-badge{display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:1px 6px;border-radius:3px;margin-right:4px;}
+  .tipo-badge.coch{background:#dce8fc;color:#2a4abf;}
+  .tipo-badge.piso{background:#dcf5ec;color:#0F6E56;}
+
+  .mes-anio-wrap{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+  .mes-anio-wrap select{font-size:11px;}
+
+  .hist-section{padding:12px 12px 0;border-top:1.5px solid #f0d090;}
+  @media(prefers-color-scheme:dark){.hist-section{border-top-color:#4a3010;}}
+  .hist-section-title{font-size:9px;font-weight:500;color:#a06010;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+
+  /* filtro tabs historial */
+  .hist-filter{display:flex;gap:5px;margin-bottom:8px;}
+  .hf-btn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;border:0.5px solid #e8c07a;background:transparent;color:#b08040;cursor:pointer;}
+  .hf-btn.active{background:#e8a84a;color:#fff;border-color:#e8a84a;}
+
+  .hist-scroll{max-height:220px;overflow-y:auto;}
+  .hist-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'JetBrains Mono',monospace;table-layout:fixed;}
+  .hist-table th{text-align:left;font-size:9px;color:#b08040;font-weight:400;text-transform:uppercase;letter-spacing:0.4px;padding:0 5px 6px;border-bottom:0.5px solid #f0d090;}
+  .hist-table td{padding:6px 5px;border-bottom:0.5px solid rgba(200,150,80,0.15);color:#7a5020;vertical-align:middle;}
+  @media(prefers-color-scheme:dark){
+    .hist-table th{color:#806040;border-bottom-color:#4a3010;}
+    .hist-table td{color:#c0a070;}
+  }
+  .hist-table tr:hover td{background:rgba(232,168,74,0.06);}
+  .col-fecha{width:58px;}
+  .col-tipo{width:22px;}
+  .col-pza{width:30px;}
+  .col-inq{width:auto;}
+  .col-eur{width:36px;text-align:right!important;}
+  .col-est{width:68px;}
+  .col-del{width:22px;text-align:center;}
+  .badge-cobrado{background:#dcf5ec;color:#0F6E56;padding:2px 5px;border-radius:3px;font-size:9px;white-space:nowrap;}
+  .badge-pend{background:#faeeda;color:#854F0B;padding:2px 5px;border-radius:3px;font-size:9px;white-space:nowrap;}
+  .empty-hist{text-align:center;color:#b08040;font-size:11px;font-family:'JetBrains Mono',monospace;padding:20px 0;}
+  .btn-del-pago{background:none;border:none;cursor:pointer;color:#d0a870;font-size:13px;line-height:1;padding:2px 3px;border-radius:4px;}
+  .btn-del-pago:hover{color:#e24b4a;background:#fcebeb;}
+  .ico-coch{color:#2a4abf;font-size:10px;}
+  .ico-piso{color:#0F6E56;font-size:10px;}
+
+  .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 12px;border-top:1.5px solid var(--color-border-secondary);background:var(--color-background-primary);}
+  .btn-save{padding:9px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:#1a1a2e;color:#fff;border:none;border-radius:7px;cursor:pointer;}
+  .btn-save:hover{opacity:0.85;}
+  .btn-excel{padding:9px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:#185F2E;color:#fff;border:none;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+  .btn-excel:hover{opacity:0.85;}
+
+  .confirm-wrap{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.35);z-index:10;align-items:center;justify-content:center;}
+  .confirm-wrap.show{display:flex;}
+  .confirm-box{background:var(--color-background-primary);border:1.5px solid var(--color-border-secondary);border-radius:12px;padding:20px 20px 16px;width:260px;text-align:center;}
+  .confirm-box p{font-size:13px;color:var(--color-text-primary);margin-bottom:14px;line-height:1.5;}
+  .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .cbtn{padding:8px;border:none;border-radius:7px;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;}
+  .cbtn-cancel{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);}
+  .cbtn-del{background:#e24b4a;color:#fff;}
+  .panel-inner{position:relative;}
+
+  .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 18px;border-radius:8px;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  .sync-dot{width:6px;height:6px;border-radius:50%;background:#888;display:inline-block;margin-left:6px;vertical-align:middle;}
+  .sync-dot.ok{background:#1D9E75;}
+  .sync-dot.err{background:#e24b4a;}
+  .sync-dot.syncing{background:#e8a84a;animation:pulse 0.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+</style>
+
+<div class="calc" id="app">
+  <div class="calc-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+      <rect x="1" y="10" width="22" height="11" rx="2"/>
+      <path d="M1 10l3-7h16l3 7"/>
+      <line x1="7" y1="14" x2="7" y2="17"/><line x1="17" y1="14" x2="17" y2="17"/>
+    </svg>
+    <div>
+      <h1>Cocheras y Pisos <span class="sync-dot" id="sync-dot"></span></h1>
+      <p id="fecha-hoy"></p>
+    </div>
+  </div>
+
+  <!-- SUMMARY BAR -->
+  <div class="summary-bar">
+    <div class="sum-cell"><div class="sum-label">Cocheras</div><div class="sum-val blue" id="s-coch">—</div></div>
+    <div class="sum-cell"><div class="sum-label">Pisos</div><div class="sum-val green" id="s-piso">—</div></div>
+    <div class="sum-cell"><div class="sum-label">€/mes</div><div class="sum-val green" id="s-ing">—</div></div>
+    <div class="sum-cell"><div class="sum-label">Llaves</div><div class="sum-val amber" id="s-llav">—</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn amber-tab active" id="tab-pagos" onclick="switchTab('pagos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Pagos
+    </button>
+    <button class="tab-btn" id="tab-cocheras" onclick="switchTab('cocheras')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="10" width="22" height="11" rx="2"/><path d="M1 10l3-7h16l3 7"/></svg>
+      Cocheras
+    </button>
+    <button class="tab-btn green-tab" id="tab-pisos" onclick="switchTab('pisos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Pisos
+    </button>
+  </div>
+
+  <!-- PANEL PAGOS -->
+  <div class="tab-panel active" id="panel-pagos">
+    <div class="pagos-panel">
+      <div class="pagos-header">
+        <div class="pagos-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <span class="pagos-title">Registrar pago</span>
+      </div>
+      <div class="pago-row3">
+        <div>
+          <div class="pf-label" style="color:#a06010">Tipo</div>
+          <select class="pf-input" id="p-tipo" onchange="refreshPagoSelect()">
+            <option value="cochera">🚗 Cochera</option>
+            <option value="piso">🏠 Piso</option>
+          </select>
+        </div>
+        <div style="grid-column:span 2">
+          <div class="pf-label" style="color:#a06010">Unidad</div>
+          <select class="pf-input" id="p-plaza"></select>
+        </div>
+      </div>
+      <div class="pago-row">
+        <div>
+          <div class="pf-label" style="color:#a06010">Mes / Año</div>
+          <div class="mes-anio-wrap">
+            <select class="pf-input" id="p-mes-sel"></select>
+            <select class="pf-input" id="p-anio-sel"></select>
+          </div>
+        </div>
+        <div>
+          <div class="pf-label" style="color:#a06010">Importe (€)</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:5px;align-items:flex-end;">
+            <input type="number" class="pf-input" id="p-imp" placeholder="0">
+            <button class="btn-pago" id="btn-add" style="white-space:nowrap">+ Añadir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hist-section">
+      <div class="hist-section-title">Historial — más reciente primero</div>
+      <div class="hist-filter">
+        <button class="hf-btn active" id="hf-all" onclick="setHFiltro('all')">Todos</button>
+        <button class="hf-btn" id="hf-cochera" onclick="setHFiltro('cochera')">🚗 Cocheras</button>
+        <button class="hf-btn" id="hf-piso" onclick="setHFiltro('piso')">🏠 Pisos</button>
+      </div>
+      <div class="hist-scroll">
+        <table class="hist-table">
+          <thead>
+            <tr>
+              <th class="col-fecha">Fecha</th>
+              <th class="col-tipo"></th>
+              <th class="col-pza">Ud.</th>
+              <th class="col-inq">Inquilino</th>
+              <th class="col-eur">€</th>
+              <th class="col-est">Estado</th>
+              <th class="col-del"></th>
+            </tr>
+          </thead>
+          <tbody id="hist-body"></tbody>
+        </table>
+        <div id="hist-empty" class="empty-hist" style="display:none">Sin pagos registrados</div>
+      </div>
+    </div>
+    <div style="height:12px;background:#fff8f0;"></div>
+  </div>
+
+  <!-- PANEL COCHERAS -->
+  <div class="tab-panel" id="panel-cocheras">
+    <div class="panel-inner" id="panel-coch-inner">
+      <div id="plazas-wrap"></div>
+      <button class="btn-nueva" id="btn-nueva-coch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva cochera
+      </button>
+      <div class="confirm-wrap" id="confirm-coch-wrap">
+        <div class="confirm-box">
+          <p>¿Eliminar cochera <strong id="confirm-coch-name"></strong>?<br><span style="font-size:11px;color:var(--color-text-secondary)">Se borrarán sus pagos asociados.</span></p>
+          <div class="confirm-btns">
+            <button class="cbtn cbtn-cancel" onclick="closeConfirm('coch')">Cancelar</button>
+            <button class="cbtn cbtn-del" id="confirm-coch-del-btn">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL PISOS -->
+  <div class="tab-panel" id="panel-pisos">
+    <div class="panel-inner" id="panel-piso-inner">
+      <div id="pisos-wrap"></div>
+      <button class="btn-nueva green" id="btn-nueva-piso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo piso
+      </button>
+      <div class="confirm-wrap" id="confirm-piso-wrap">
+        <div class="confirm-box">
+          <p>¿Eliminar piso <strong id="confirm-piso-name"></strong>?<br><span style="font-size:11px;color:var(--color-text-secondary)">Se borrarán sus pagos asociados.</span></p>
+          <div class="confirm-btns">
+            <button class="cbtn cbtn-cancel" onclick="closeConfirm('piso')">Cancelar</button>
+            <button class="cbtn cbtn-del" id="confirm-piso-del-btn">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn-save" id="btn-save">💾 Guardar</button>
+    <button class="btn-excel" id="btn-excel">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Exportar Excel
+    </button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ─── SUPABASE CONFIG ────────────────────────────────────────────────────────
+const SB_URL  = 'https://kcpmaxnfjmxsvvdeqmhy.supabase.co';
+const SB_KEY  = 'sb_publishable_x5n8nobY-gpZiJRbeJBBjQ_LIqInNs9';
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Prefer': 'return=representation'
+};
+
+async function sbGet(table) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, { headers: HEADERS });
+  if (!r.ok) throw new Error(`GET ${table}: ${r.status}`);
+  return r.json();
+}
+async function sbUpsert(table, rows) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+    body: JSON.stringify(rows)
+  });
+  if (!r.ok) { const t = await r.text(); throw new Error(`UPSERT ${table}: ${r.status} ${t}`); }
+  return r.json();
+}
+async function sbDelete(table, col, val) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${col}=eq.${encodeURIComponent(val)}`, {
+    method: 'DELETE', headers: HEADERS
+  });
+  if (!r.ok) throw new Error(`DELETE ${table}: ${r.status}`);
+}
+async function sbPatch(table, col, val, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${col}=eq.${encodeURIComponent(val)}`, {
+    method: 'PATCH', headers: HEADERS, body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error(`PATCH ${table}: ${r.status}`);
+}
+
+// ─── ESTADO ─────────────────────────────────────────────────────────────────
+const SK = 'cocheras_pisos_v2';
+const DEF_COCHERAS = [
+  {id:'165',inquilino:'Anabel',renta:80,estado:'ocupada',llave:false,obs:''},
+  {id:'164',inquilino:'Héctor',renta:80,estado:'ocupada',llave:false,obs:''},
+  {id:'57', inquilino:'',renta:0,estado:'libre',llave:false,obs:''},
+];
+const DEF_PISOS = [];
+
+let plazas, pisos, pagos;
+let pendingDelCoch = null, pendingDelPiso = null;
+let histFiltro = 'all';
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_CORTO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+try {
+  const s = JSON.parse(localStorage.getItem(SK));
+  if (s && s.plazas) {
+    plazas = s.plazas.map(p => ({obs:'',...p}));
+    pisos  = (s.pisos||[]).map(p => ({obs:'',...p}));
+    pagos  = s.pagos || [];
+  } else throw 0;
+} catch(e) {
+  plazas = JSON.parse(JSON.stringify(DEF_COCHERAS));
+  pisos  = JSON.parse(JSON.stringify(DEF_PISOS));
+  pagos  = [];
+}
+
+function saveLocal() {
+  try { localStorage.setItem(SK, JSON.stringify({plazas, pisos, pagos})); } catch(e) {}
+}
+
+// ─── SYNC DOT ────────────────────────────────────────────────────────────────
+function setSyncDot(state) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+}
+
+// ─── UI HELPERS ──────────────────────────────────────────────────────────────
+function toast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color || '#1a1a2e';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function switchTab(tab) {
+  ['pagos','cocheras','pisos'].forEach(t => {
+    document.getElementById('panel-'+t).classList.toggle('active', t===tab);
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab==='pagos') refreshPagoSelect();
+}
+
+function updateSummary() {
+  const ocC  = plazas.filter(p => p.estado==='ocupada').length;
+  const ocP  = pisos.filter(p => p.estado==='ocupada').length;
+  const ingC = plazas.filter(p => p.estado==='ocupada').reduce((s,p) => s+(parseFloat(p.renta)||0), 0);
+  const ingP = pisos.filter(p => p.estado==='ocupada').reduce((s,p) => s+(parseFloat(p.renta)||0), 0);
+  const llC  = plazas.filter(p => p.llave).length;
+  const llP  = pisos.filter(p => p.llave).length;
+  document.getElementById('s-coch').textContent = `${ocC}/${plazas.length}`;
+  document.getElementById('s-piso').textContent = `${ocP}/${pisos.length}`;
+  document.getElementById('s-ing').textContent  = `${ingC+ingP}€`;
+  document.getElementById('s-llav').textContent = `${llC+llP}/${plazas.length+pisos.length}`;
+}
+
+function openConfirm(tipo, i) {
+  if (tipo==='coch') {
+    pendingDelCoch = i;
+    const p = plazas[i];
+    document.getElementById('confirm-coch-name').textContent = `#${p.id}${p.inquilino?' ('+p.inquilino+')':''}`;
+    document.getElementById('confirm-coch-wrap').classList.add('show');
+  } else {
+    pendingDelPiso = i;
+    const p = pisos[i];
+    document.getElementById('confirm-piso-name').textContent = `#${p.id}${p.inquilino?' ('+p.inquilino+')':''}`;
+    document.getElementById('confirm-piso-wrap').classList.add('show');
+  }
+}
+function closeConfirm(tipo) {
+  if (tipo==='coch') { pendingDelCoch=null; document.getElementById('confirm-coch-wrap').classList.remove('show'); }
+  else               { pendingDelPiso=null; document.getElementById('confirm-piso-wrap').classList.remove('show'); }
+}
+
+// ─── RENDER COCHERAS ─────────────────────────────────────────────────────────
+function renderPlazas() {
+  const w = document.getElementById('plazas-wrap'); w.innerHTML = '';
+  plazas.forEach((p, i) => renderUnidad(w, p, i, 'coch'));
+  attachFieldListeners(w, plazas, 'coch');
+}
+
+// ─── RENDER PISOS ────────────────────────────────────────────────────────────
+function renderPisos() {
+  const w = document.getElementById('pisos-wrap'); w.innerHTML = '';
+  pisos.forEach((p, i) => renderUnidad(w, p, i, 'piso'));
+  attachFieldListeners(w, pisos, 'piso');
+}
+
+function renderUnidad(container, p, i, tipo) {
+  const ec = p.estado;
+  const isPiso = tipo === 'piso';
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="plaza-sep ${tipo}">
+      <input class="sep-num-input${isPiso?' piso':''}" type="text" value="${p.id}" data-f="id" data-i="${i}" data-tipo="${tipo}" title="${isPiso?'Número piso':'Número cochera'}" maxlength="10">
+      <input class="sep-name-input${isPiso?' piso':''}" type="text" value="${p.inquilino}" data-f="inquilino" data-i="${i}" data-tipo="${tipo}" placeholder="${isPiso?'Sin inquilino':'Sin inquilino'}">
+      <span class="sep-estado ${ec}">${ec==='ocupada'?'Ocupada':ec==='libre'?'Libre':'Pendiente'}</span>
+      <button class="btn-del" data-del="${i}" data-tipo="${tipo}" title="Eliminar">✕</button>
+    </div>
+    <div class="plaza-fields">
+      <div class="pf">
+        <div class="pf-label">Renta €/mes</div>
+        <input class="pf-input${isPiso?' piso-input':''}" type="number" value="${p.renta}" min="0" data-f="renta" data-i="${i}" data-tipo="${tipo}">
+      </div>
+      <div class="pf">
+        <div class="pf-label">Estado</div>
+        <select class="pf-input${isPiso?' piso-input':''}" data-f="estado" data-i="${i}" data-tipo="${tipo}">
+          <option value="ocupada" ${ec==='ocupada'?'selected':''}>Ocupada</option>
+          <option value="libre" ${ec==='libre'?'selected':''}>Libre</option>
+          <option value="pendiente" ${ec==='pendiente'?'selected':''}>Pendiente</option>
+        </select>
+      </div>
+      <div class="pf" style="grid-column:1/-1">
+        <div class="pf-label">Llave entregada</div>
+        <label class="key-row ${p.llave?'has-key':''}" data-i="${i}" data-tipo="${tipo}">
+          <input type="checkbox" data-f="llave" data-i="${i}" data-tipo="${tipo}" ${p.llave?'checked':''}>
+          <span>${p.llave?'Entregada':'Pendiente'}</span>
+        </label>
+      </div>
+    </div>
+    <div class="obs-row">
+      <div class="pf-label">Observaciones</div>
+      <textarea class="obs-textarea${isPiso?' piso-input':''}" data-f="obs" data-i="${i}" data-tipo="${tipo}" placeholder="Notas...">${p.obs||''}</textarea>
+    </div>`;
+  container.appendChild(el);
+}
+
+function attachFieldListeners(w, arr, tipo) {
+  w.querySelectorAll('[data-f]').forEach(el => {
+    const ev = el.tagName==='TEXTAREA' ? 'input' : 'change';
+    el.addEventListener(ev, e => {
+      const i = +e.target.dataset.i, f = e.target.dataset.f;
+      if (f==='llave') {
+        arr[i].llave = e.target.checked;
+        const lbl = e.target.closest('.key-row');
+        lbl.classList.toggle('has-key', arr[i].llave);
+        lbl.querySelector('span').textContent = arr[i].llave ? 'Entregada' : 'Pendiente';
+      } else if (f==='renta') {
+        arr[i].renta = parseFloat(e.target.value) || 0;
+      } else if (f==='estado') {
+        arr[i].estado = e.target.value;
+        const badge = e.target.closest('.plaza-fields').previousElementSibling.querySelector('.sep-estado');
+        badge.className = `sep-estado ${arr[i].estado}`;
+        badge.textContent = arr[i].estado==='ocupada'?'Ocupada':arr[i].estado==='libre'?'Libre':'Pendiente';
+      } else {
+        arr[i][f] = e.target.value;
+        if (f==='id' || f==='inquilino') refreshPagoSelect();
+      }
+      updateSummary();
+    });
+  });
+  w.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', e => openConfirm(e.target.dataset.tipo, +e.target.dataset.del));
+  });
+}
+
+// ─── CONFIRMAR ELIMINACIÓN ───────────────────────────────────────────────────
+document.getElementById('confirm-coch-del-btn').addEventListener('click', async () => {
+  if (pendingDelCoch===null) return;
+  const pid = plazas[pendingDelCoch].id;
+  plazas.splice(pendingDelCoch, 1);
+  pagos = pagos.filter(p => !(p.tipo==='cochera' && p.plaza===pid));
+  closeConfirm('coch');
+  try { await sbDelete('cocheras2', 'id', pid); } catch(e) { console.error(e); }
+  saveLocal(); renderPlazas(); renderHist(); updateSummary(); refreshPagoSelect();
+  toast('Cochera eliminada', '#e24b4a');
+});
+
+document.getElementById('confirm-piso-del-btn').addEventListener('click', async () => {
+  if (pendingDelPiso===null) return;
+  const pid = pisos[pendingDelPiso].id;
+  pisos.splice(pendingDelPiso, 1);
+  pagos = pagos.filter(p => !(p.tipo==='piso' && p.plaza===pid));
+  closeConfirm('piso');
+  try { await sbDelete('pisos2', 'id', pid); } catch(e) { console.error(e); }
+  saveLocal(); renderPisos(); renderHist(); updateSummary(); refreshPagoSelect();
+  toast('Piso eliminado', '#e24b4a');
+});
+
+// ─── PAGO SELECT ─────────────────────────────────────────────────────────────
+function refreshPagoSelect() {
+  const tipo = document.getElementById('p-tipo').value;
+  const arr  = tipo === 'cochera' ? plazas : pisos;
+  const sel  = document.getElementById('p-plaza');
+  const cur  = sel.value;
+  sel.innerHTML = arr.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${p.id}${p.inquilino?' – '+p.inquilino:''}</option>`).join('');
+}
+
+// ─── HISTORIAL FILTRO ────────────────────────────────────────────────────────
+function setHFiltro(f) {
+  histFiltro = f;
+  ['all','cochera','piso'].forEach(k => {
+    document.getElementById('hf-'+k).classList.toggle('active', k===f);
+  });
+  renderHist();
+}
+
+// ─── HISTORIAL ───────────────────────────────────────────────────────────────
+function fmtMes(m) {
+  if (!m) return '—';
+  const [y, mo] = m.split('-');
+  return MESES_CORTO[+mo-1] + ' ' + y;
+}
+
+function renderHist() {
+  const tbody = document.getElementById('hist-body');
+  const empty = document.getElementById('hist-empty');
+  let filtered = pagos;
+  if (histFiltro !== 'all') filtered = pagos.filter(p => p.tipo === histFiltro);
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  const indexed = filtered.map((p, _) => ({ p, real: pagos.indexOf(p) }));
+  const sorted = indexed.sort((a,b) => b.p.mes.localeCompare(a.p.mes));
+  tbody.innerHTML = sorted.map(({p, real}) => `
+    <tr>
+      <td class="col-fecha">${fmtMes(p.mes)}</td>
+      <td class="col-tipo">${p.tipo==='piso'?'🏠':'🚗'}</td>
+      <td class="col-pza"><strong>${p.plaza}</strong></td>
+      <td class="col-inq" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px">${p.nombre||'—'}</td>
+      <td class="col-eur" style="text-align:right;font-weight:500">${parseFloat(p.importe).toFixed(0)}</td>
+      <td class="col-est">
+        <label style="cursor:pointer;display:flex;align-items:center;gap:3px;">
+          <input type="checkbox" ${p.cobrado?'checked':''} data-pi="${real}" style="accent-color:#1D9E75;width:11px;height:11px;cursor:pointer;flex-shrink:0;">
+          <span class="${p.cobrado?'badge-cobrado':'badge-pend'}">${p.cobrado?'Cobrado':'Pend.'}</span>
+        </label>
+      </td>
+      <td class="col-del">
+        <button class="btn-del-pago" data-delpago="${real}" title="Eliminar">✕</button>
+      </td>
+    </tr>`).join('');
+
+  tbody.querySelectorAll('[data-pi]').forEach(cb => {
+    cb.addEventListener('change', async e => {
+      const idx = +e.target.dataset.pi;
+      pagos[idx].cobrado = e.target.checked;
+      if (pagos[idx].sb_id) {
+        try { await sbPatch('pagos2', 'id', pagos[idx].sb_id, {cobrado: pagos[idx].cobrado}); } catch(err) { console.error(err); }
+      }
+      saveLocal(); renderHist();
+    });
+  });
+
+  tbody.querySelectorAll('[data-delpago]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      const idx = +e.target.dataset.delpago;
+      const pago = pagos[idx];
+      if (pago.sb_id) {
+        try { await sbDelete('pagos2', 'id', pago.sb_id); } catch(err) { console.error(err); }
+      }
+      pagos.splice(idx, 1);
+      saveLocal(); renderHist();
+      toast('Pago eliminado', '#e24b4a');
+    });
+  });
+}
+
+// ─── AÑADIR PAGO ─────────────────────────────────────────────────────────────
+function getMesValor() {
+  const m = document.getElementById('p-mes-sel').value;
+  const y = document.getElementById('p-anio-sel').value;
+  return `${y}-${m}`;
+}
+
+document.getElementById('btn-add').addEventListener('click', async () => {
+  const tipo = document.getElementById('p-tipo').value;
+  const pl   = document.getElementById('p-plaza').value;
+  const mes  = getMesValor();
+  const imp  = parseFloat(document.getElementById('p-imp').value);
+  if (!mes || !imp) { toast('Rellena mes e importe', '#BA7517'); return; }
+  const arr  = tipo === 'cochera' ? plazas : pisos;
+  const unit = arr.find(x => x.id===pl);
+  const nuevoPago = {tipo, plaza:pl, nombre:(unit&&unit.inquilino)||'—', mes, importe:imp, cobrado:false};
+  try {
+    setSyncDot('syncing');
+    const res = await sbUpsert('pagos2', [nuevoPago]);
+    if (Array.isArray(res) && res[0]) nuevoPago.sb_id = res[0].id;
+    setSyncDot('ok');
+  } catch(err) { setSyncDot('err'); console.error(err); }
+  pagos.push(nuevoPago);
+  document.getElementById('p-imp').value = '';
+  saveLocal(); renderHist();
+  toast(`Pago ${tipo} añadido ✓`, '#e8a84a');
+});
+
+// ─── BOTÓN NUEVA COCHERA / PISO ───────────────────────────────────────────────
+document.getElementById('btn-nueva-coch').addEventListener('click', () => {
+  const newId = String(Math.floor(Math.random()*900)+100);
+  plazas.push({id:newId, inquilino:'', renta:0, estado:'libre', llave:false, obs:''});
+  saveLocal(); renderPlazas(); updateSummary(); refreshPagoSelect();
+  document.getElementById('plazas-wrap').lastElementChild?.scrollIntoView({behavior:'smooth', block:'nearest'});
+  toast('Nueva cochera añadida', '#2a4abf');
+});
+
+document.getElementById('btn-nueva-piso').addEventListener('click', () => {
+  const newId = String(Math.floor(Math.random()*900)+100);
+  pisos.push({id:newId, inquilino:'', renta:0, estado:'libre', llave:false, obs:''});
+  saveLocal(); renderPisos(); updateSummary(); refreshPagoSelect();
+  document.getElementById('pisos-wrap').lastElementChild?.scrollIntoView({behavior:'smooth', block:'nearest'});
+  toast('Nuevo piso añadido', '#1D9E75');
+});
+
+// ─── GUARDAR SUPABASE ─────────────────────────────────────────────────────────
+async function saveToSupabase() {
+  setSyncDot('syncing');
+  try {
+    await sbUpsert('cocheras2', plazas.map(p => ({
+      id:p.id, inquilino:p.inquilino||'', renta:parseFloat(p.renta)||0,
+      estado:p.estado, llave:!!p.llave, obs:p.obs||''
+    })));
+    await sbUpsert('pisos2', pisos.map(p => ({
+      id:p.id, inquilino:p.inquilino||'', renta:parseFloat(p.renta)||0,
+      estado:p.estado, llave:!!p.llave, obs:p.obs||''
+    })));
+    if (pagos.length) {
+      const pagoRows = pagos.map(p => {
+        const row = {tipo:p.tipo||'cochera', plaza:p.plaza, nombre:p.nombre||'—', mes:p.mes,
+                     importe:parseFloat(p.importe), cobrado:!!p.cobrado};
+        if (p.sb_id) row.id = p.sb_id;
+        return row;
+      });
+      const res = await sbUpsert('pagos2', pagoRows);
+      if (Array.isArray(res)) res.forEach((row, i) => { if (pagos[i] && row.id) pagos[i].sb_id = row.id; });
+    }
+    saveLocal();
+    setSyncDot('ok');
+    toast('Guardado en Supabase ✓', '#1D9E75');
+  } catch(err) {
+    setSyncDot('err');
+    toast('Error Supabase: ' + err.message, '#e24b4a');
+    console.error(err);
+  }
+}
+
+// ─── CARGAR SUPABASE ──────────────────────────────────────────────────────────
+async function loadFromSupabase() {
+  setSyncDot('syncing');
+  try {
+    const [dbCoch, dbPisos, dbPagos] = await Promise.all([
+      sbGet('cocheras2'), sbGet('pisos2'), sbGet('pagos2')
+    ]);
+    if (dbCoch.length || dbPisos.length) {
+      plazas = dbCoch.map(p => ({obs:'',...p}));
+      pisos  = dbPisos.map(p => ({obs:'',...p}));
+      pagos  = dbPagos.map(p => ({...p, sb_id:p.id}));
+      saveLocal();
+    }
+    setSyncDot('ok');
+  } catch(err) {
+    setSyncDot('err');
+    toast('Sin conexión, usando caché local', '#BA7517');
+    console.error(err);
+  }
+  renderPlazas(); renderPisos(); renderHist(); updateSummary(); refreshPagoSelect();
+}
+
+// ─── EXCEL ────────────────────────────────────────────────────────────────────
+document.getElementById('btn-excel').addEventListener('click', () => {
+  try {
+    const wb = XLSX.utils.book_new();
+    // Cocheras
+    const wsCoch = XLSX.utils.aoa_to_sheet([
+      ['Cochera','Inquilino','Renta €/mes','Estado','Llave','Observaciones'],
+      ...plazas.map(p => [p.id, p.inquilino||'Libre', p.renta, p.estado, p.llave?'Sí':'No', p.obs||''])
+    ]);
+    wsCoch['!cols'] = [{wch:10},{wch:14},{wch:14},{wch:12},{wch:8},{wch:28}];
+    XLSX.utils.book_append_sheet(wb, wsCoch, 'Cocheras');
+    // Pisos
+    const wsPiso = XLSX.utils.aoa_to_sheet([
+      ['Piso','Inquilino','Renta €/mes','Estado','Llave','Observaciones'],
+      ...pisos.map(p => [p.id, p.inquilino||'Libre', p.renta, p.estado, p.llave?'Sí':'No', p.obs||''])
+    ]);
+    wsPiso['!cols'] = [{wch:10},{wch:14},{wch:14},{wch:12},{wch:8},{wch:28}];
+    XLSX.utils.book_append_sheet(wb, wsPiso, 'Pisos');
+    // Pagos todos
+    const sorted = [...pagos].sort((a,b) => b.mes.localeCompare(a.mes));
+    const wsPagos = XLSX.utils.aoa_to_sheet([
+      ['Mes','Tipo','Unidad','Inquilino','Importe €','Cobrado'],
+      ...sorted.map(p => [fmtMes(p.mes), p.tipo==='piso'?'Piso':'Cochera', p.plaza, p.nombre||'—', p.importe, p.cobrado?'Sí':'No'])
+    ]);
+    wsPagos['!cols'] = [{wch:10},{wch:10},{wch:8},{wch:14},{wch:10},{wch:8}];
+    XLSX.utils.book_append_sheet(wb, wsPagos, 'Pagos');
+    // Dashboard
+    const ingC = plazas.filter(p=>p.estado==='ocupada').reduce((s,p)=>s+(parseFloat(p.renta)||0),0);
+    const ingP = pisos.filter(p=>p.estado==='ocupada').reduce((s,p)=>s+(parseFloat(p.renta)||0),0);
+    const wsDash = XLSX.utils.aoa_to_sheet([
+      ['Dashboard',''],
+      ['Fecha exportación', new Date().toLocaleDateString('es-ES')], ['',''],
+      ['Cocheras ocupadas', `${plazas.filter(p=>p.estado==='ocupada').length}/${plazas.length}`],
+      ['Pisos ocupados',    `${pisos.filter(p=>p.estado==='ocupada').length}/${pisos.length}`],
+      ['Ingresos cocheras €/mes', ingC],
+      ['Ingresos pisos €/mes',    ingP],
+      ['Ingresos totales €/mes',  ingC+ingP],
+      ['Ingresos totales €/año',  (ingC+ingP)*12],
+    ]);
+    wsDash['!cols'] = [{wch:24},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, wsDash, 'Dashboard');
+    XLSX.writeFile(wb, 'cocheras_pisos.xlsx');
+    toast('Excel descargado', '#185F2E');
+  } catch(err) { toast('Error al exportar', '#A32D2D'); }
+});
+
+document.getElementById('btn-save').addEventListener('click', () => saveToSupabase());
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function buildMesAnioSelects() {
+  const selMes  = document.getElementById('p-mes-sel');
+  const selAnio = document.getElementById('p-anio-sel');
+  const hoy = new Date();
+  selMes.innerHTML  = MESES.map((m,i) => `<option value="${String(i+1).padStart(2,'0')}">${m}</option>`).join('');
+  const anioBase = hoy.getFullYear();
+  selAnio.innerHTML = [-1,0,1,2].map(d => `<option value="${anioBase+d}">${anioBase+d}</option>`).join('');
+  selMes.value  = String(hoy.getMonth()+1).padStart(2,'0');
+  selAnio.value = String(anioBase);
+}
+
+const hoy = new Date();
+document.getElementById('fecha-hoy').textContent = hoy.toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'numeric'});
+buildMesAnioSelects();
+loadFromSupabase();
+</script>
+</html>
