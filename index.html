@@ -2,794 +2,824 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cocheras">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./icons/icon-192.png">
 <title>Cocheras y Pisos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{display:flex;justify-content:center;background:var(--color-background-tertiary);}
-  .calc{font-family:'Syne',sans-serif;width:420px;background:var(--color-background-primary);border:1.5px solid var(--color-border-secondary);border-radius:18px;overflow:hidden;margin:20px auto;}
-  .calc-header{background:#1a1a2e;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;}
-  .calc-header svg{width:22px;height:22px;flex-shrink:0;}
-  .calc-header h1{font-size:14px;font-weight:700;color:#fff;}
-  .calc-header p{font-size:9px;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;margin-top:1px;}
-  .summary-bar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1.5px solid var(--color-border-secondary);}
-  .sum-cell{padding:8px 8px;border-right:0.5px solid var(--color-border-tertiary);text-align:center;}
-  .sum-cell:last-child{border-right:none;}
-  .sum-label{font-size:8px;color:var(--color-text-tertiary);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.4px;}
-  .sum-val{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--color-text-primary);margin-top:2px;}
-  .sum-val.green{color:#1D9E75;}
-  .sum-val.amber{color:#BA7517;}
-  .sum-val.blue{color:#2a4abf;}
-  .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1.5px solid var(--color-border-secondary);}
-  .tab-btn{padding:10px 0;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-secondary);border:none;cursor:pointer;border-bottom:2.5px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;border-right:0.5px solid var(--color-border-tertiary);}
-  .tab-btn:last-child{border-right:none;}
-  .tab-btn.active{background:var(--color-background-primary);color:#2a4abf;border-bottom-color:#2a4abf;}
-  .tab-btn.active.amber-tab{color:#c07010;border-bottom-color:#e8a84a;}
-  .tab-btn.active.green-tab{color:#0F6E56;border-bottom-color:#1D9E75;}
-  .tab-btn svg{width:13px;height:13px;flex-shrink:0;}
-  .tab-panel{display:none;}
-  .tab-panel.active{display:block;}
-
-  /* PLAZAS / PISOS */
-  .plaza-sep{display:flex;align-items:center;gap:0;padding:6px 12px;border-bottom:0.5px solid #c5d0f0;border-top:0.5px solid #c5d0f0;}
-  .plaza-sep.coch{background:#eef2ff;border-color:#c5d0f0;}
-  .plaza-sep.piso{background:#ecfdf5;border-color:#a7f3d0;}
-  @media(prefers-color-scheme:dark){
-    .plaza-sep.coch{background:#1c2245;border-color:#2a3568;}
-    .plaza-sep.piso{background:#052e16;border-color:#064e3b;}
-    .sep-num-input,.sep-name-input{color:#8ba4e8!important;}
-    .sep-num-input.piso,.sep-name-input.piso{color:#34d399!important;}
-    .sep-estado.ocupada{background:#0e3326!important;color:#4ecb97!important;}
-    .sep-estado.libre{background:#2a2a2a!important;color:#888!important;}
-    .sep-estado.pendiente{background:#3a2a00!important;color:#e0a030!important;}
+:root{
+  --bg:#f3f4f8; --surface:#ffffff; --surface-2:#eef0f5; --text:#14161f; --text-2:#525868; --text-3:#868c9c;
+  --border:#e0e3ea; --brand:#1a1a2e; --brand-ink:#ffffff;
+  --coch:#2a4abf; --coch-bg:#e7ecfd; --piso:#0f7a5c; --piso-bg:#def5ec;
+  --pago:#b86a0c; --pago-bg:#fdf1df; --ok:#16855f; --ok-bg:#daf3e8; --warn:#9a5a06; --warn-bg:#fbeed8;
+  --muted-bg:#ececE8; --muted:#5f5e5a; --danger:#d23b3a; --danger-bg:#fcebeb;
+  --shadow:0 1px 2px rgba(20,22,40,.06),0 4px 14px rgba(20,22,40,.06);
+  --nav-h:64px; --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Syne',system-ui,sans-serif;
+  --sat:env(safe-area-inset-top); --sab:env(safe-area-inset-bottom); --sal:env(safe-area-inset-left); --sar:env(safe-area-inset-right);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0e0f17; --surface:#171925; --surface-2:#20232f; --text:#eceef4; --text-2:#a9aebd; --text-3:#7a8091;
+    --border:#2a2d3b; --coch:#8ba4ff; --coch-bg:#1e2648; --piso:#4fd1a5; --piso-bg:#0d3326;
+    --pago:#f0b25a; --pago-bg:#33240c; --ok:#4fd1a5; --ok-bg:#0d3326; --warn:#f0b25a; --warn-bg:#33240c;
+    --muted-bg:#2a2a2e; --muted:#a0a0a0; --danger:#ff6b6a; --danger-bg:#3a1515; --shadow:none;
   }
-  .sep-num-input{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#2a4abf;width:52px;background:transparent;border:0.5px solid transparent;border-radius:5px;padding:2px 4px;}
-  .sep-num-input.piso{color:#0F6E56;}
-  .sep-num-input:focus{outline:none;border-color:#2a4abf;background:#fff;}
-  .sep-num-input.piso:focus{border-color:#1D9E75;}
-  .sep-name-input{font-size:13px;font-weight:500;color:#2a4abf;flex:1;background:transparent;border:0.5px solid transparent;border-radius:5px;padding:2px 6px;font-family:'Syne',sans-serif;margin:0 6px;}
-  .sep-name-input.piso{color:#0F6E56;}
-  .sep-name-input:focus{outline:none;border-color:#2a4abf;background:#fff;}
-  .sep-name-input.piso:focus{border-color:#1D9E75;}
-  .sep-name-input::placeholder{color:#aab5e0;font-style:italic;}
-  .sep-name-input.piso::placeholder{color:#6ee7b7;font-style:italic;}
-  .sep-estado{font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:4px;background:#dce8fc;color:#2a4abf;flex-shrink:0;}
-  .sep-estado.ocupada{background:#dcf5ec;color:#0F6E56;}
-  .sep-estado.libre{background:#eeeee8;color:#5F5E5A;}
-  .sep-estado.pendiente{background:#faeeda;color:#854F0B;}
-  .btn-del{background:none;border:none;cursor:pointer;color:#c0c8e0;padding:2px 4px;border-radius:4px;font-size:14px;line-height:1;flex-shrink:0;}
-  .btn-del:hover{color:#e24b4a;background:#fcebeb;}
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);}
+body{min-height:100dvh;overscroll-behavior-y:none;}
+button,input,select,textarea{font:inherit;color:inherit;}
+button{cursor:pointer;border:none;background:none;}
+button:disabled{opacity:.45;cursor:not-allowed;}
+[hidden]{display:none!important;}
+.mono{font-family:var(--mono);}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;}}
 
-  .plaza-fields{display:grid;grid-template-columns:1fr 1fr;padding:10px 12px 6px;border-bottom:1.5px solid var(--color-border-secondary);}
-  .pf{padding:3px 5px;}
-  .pf-label{font-size:9px;color:var(--color-text-tertiary);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:3px;}
-  .pf-input{font-family:'Syne',sans-serif;font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:5px 8px;width:100%;color:var(--color-text-primary);}
-  .pf-input:focus{outline:none;border-color:#2a4abf;}
-  .pf-input.piso-input:focus{border-color:#1D9E75;}
-  select.pf-input{cursor:pointer;}
-  .key-row{display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:5px 8px;}
-  .key-row input{accent-color:#1D9E75;cursor:pointer;width:13px;height:13px;flex-shrink:0;}
-  .key-row span{font-size:11px;color:var(--color-text-secondary);font-family:'JetBrains Mono',monospace;}
-  .key-row.has-key span{color:#1D9E75;}
+/* ── Header ── */
+.top{position:sticky;top:0;z-index:20;background:var(--brand);color:var(--brand-ink);
+  padding:calc(var(--sat) + 10px) calc(var(--sar) + 14px) 10px calc(var(--sal) + 14px);}
+.top-row{display:flex;align-items:center;gap:10px;max-width:640px;margin:0 auto;}
+.top-row svg.logo{width:26px;height:26px;flex-shrink:0;}
+.top h1{font-size:17px;font-weight:700;line-height:1.1;}
+.top p{font-size:11px;opacity:.55;font-family:var(--mono);margin-top:2px;}
+.top .grow{flex:1;min-width:0;}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:inherit;}
+.icon-btn:active{background:rgba(255,255,255,.12);}
+.icon-btn svg{width:22px;height:22px;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#888;display:inline-block;margin-left:6px;vertical-align:middle;}
+.sync-dot.ok{background:#1D9E75;} .sync-dot.err{background:#e24b4a;}
+.sync-dot.syncing{background:#e8a84a;animation:pulse .8s infinite;}
+@keyframes pulse{50%{opacity:.3;}}
 
-  .obs-row{padding:4px 17px 10px;border-bottom:1.5px solid var(--color-border-secondary);}
-  .obs-textarea{font-family:'Syne',sans-serif;font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:6px 8px;width:100%;color:var(--color-text-primary);resize:none;height:46px;line-height:1.4;}
-  .obs-textarea:focus{outline:none;border-color:#2a4abf;}
-  .obs-textarea.piso-input:focus{border-color:#1D9E75;}
-  .obs-textarea::placeholder{color:var(--color-text-tertiary);font-style:italic;}
+.offline{background:var(--warn-bg);color:var(--warn);font-size:13px;text-align:center;padding:8px 14px;font-weight:500;}
 
-  .btn-nueva{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 24px);margin:10px 12px;padding:9px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:none;color:#2a4abf;border:1px dashed #8ba4e8;border-radius:8px;cursor:pointer;}
-  .btn-nueva:hover{background:#eef2ff;border-color:#2a4abf;}
-  .btn-nueva.green{color:#0F6E56;border-color:#6ee7b7;}
-  .btn-nueva.green:hover{background:#ecfdf5;border-color:#1D9E75;}
-  .btn-nueva svg{width:14px;height:14px;}
+/* ── Layout ── */
+main{max-width:640px;margin:0 auto;padding:12px calc(var(--sar) + 12px) calc(var(--nav-h) + var(--sab) + 90px) calc(var(--sal) + 12px);}
 
-  /* PAGOS */
-  .pagos-panel{background:#fff8f0;padding:14px 12px;}
-  @media(prefers-color-scheme:dark){
-    .pagos-panel{background:#241c0a;}
-    .pagos-panel .pf-input{background:#2a1f0a;border-color:#4a3010;color:#f0d090;}
-    .pagos-panel .pf-input:focus{border-color:#e8a84a;}
-  }
-  .pagos-header{display:flex;align-items:center;gap:7px;margin-bottom:12px;}
-  .pagos-icon{width:22px;height:22px;background:#e8a84a;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .pagos-icon svg{width:13px;height:13px;}
-  .pagos-title{font-size:12px;font-weight:700;color:#a06010;}
-  .pago-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
-  .pago-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;}
-  .pago-row2{display:grid;grid-template-columns:2fr 1fr;gap:6px;}
-  .pagos-panel .pf-input{background:#fff3e0;border:0.5px solid #e8c07a;}
-  .btn-pago{width:100%;padding:8px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:#e8a84a;color:#fff;border:none;border-radius:6px;cursor:pointer;}
-  .btn-pago:hover{opacity:0.85;}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.sum{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 6px;text-align:center;box-shadow:var(--shadow);}
+.sum-l{font-size:10px;color:var(--text-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.4px;}
+.sum-v{font-size:17px;font-weight:700;font-family:var(--mono);margin-top:3px;white-space:nowrap;}
+.sum-v.c{color:var(--coch);} .sum-v.p{color:var(--piso);} .sum-v.g{color:var(--ok);} .sum-v.a{color:var(--pago);}
 
-  /* tipo badge en selector */
-  .tipo-badge{display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:1px 6px;border-radius:3px;margin-right:4px;}
-  .tipo-badge.coch{background:#dce8fc;color:#2a4abf;}
-  .tipo-badge.piso{background:#dcf5ec;color:#0F6E56;}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:4px 2px 10px;}
+.section-h h2{font-size:18px;font-weight:700;}
+.section-h span{font-size:12px;color:var(--text-2);font-family:var(--mono);}
 
-  .mes-anio-wrap{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
-  .mes-anio-wrap select{font-size:11px;}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+  font-size:13px;font-weight:500;color:var(--text-2);}
+.chip.on{background:var(--brand);color:#fff;border-color:var(--brand);}
+@media (prefers-color-scheme:dark){.chip.on{background:var(--pago);border-color:var(--pago);color:#1a1205;}}
+.chip:active{transform:scale(.97);}
 
-  .hist-section{padding:12px 12px 0;border-top:1.5px solid #f0d090;}
-  @media(prefers-color-scheme:dark){.hist-section{border-top-color:#4a3010;}}
-  .hist-section-title{font-size:9px;font-weight:500;color:#a06010;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+/* ── Cards ── */
+.list{display:flex;flex-direction:column;gap:8px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:12px;padding:12px;text-align:left;width:100%;min-height:64px;}
+.card:active{background:var(--surface-2);}
+.month-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--text-3);
+  font-family:var(--mono);text-transform:uppercase;letter-spacing:.4px;margin:14px 4px 2px;}
+.month-h:first-child{margin-top:2px;}
+.month-h b{color:var(--text-2);font-weight:500;}
 
-  /* filtro tabs historial */
-  .hist-filter{display:flex;gap:5px;margin-bottom:8px;}
-  .hf-btn{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;border:0.5px solid #e8c07a;background:transparent;color:#b08040;cursor:pointer;}
-  .hf-btn.active{background:#e8a84a;color:#fff;border-color:#e8a84a;}
+.ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:18px;}
+.ico.cochera{background:var(--coch-bg);} .ico.piso{background:var(--piso-bg);}
+.c-main{flex:1;min-width:0;}
+.c-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.c-sub{font-size:12px;color:var(--text-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--mono);}
+.c-amt{font-family:var(--mono);font-weight:500;font-size:14px;white-space:nowrap;color:var(--text-2);}
 
-  .hist-scroll{max-height:220px;overflow-y:auto;}
-  .hist-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'JetBrains Mono',monospace;table-layout:fixed;}
-  .hist-table th{text-align:left;font-size:9px;color:#b08040;font-weight:400;text-transform:uppercase;letter-spacing:0.4px;padding:0 5px 6px;border-bottom:0.5px solid #f0d090;}
-  .hist-table td{padding:6px 5px;border-bottom:0.5px solid rgba(200,150,80,0.15);color:#7a5020;vertical-align:middle;}
-  @media(prefers-color-scheme:dark){
-    .hist-table th{color:#806040;border-bottom-color:#4a3010;}
-    .hist-table td{color:#c0a070;}
-  }
-  .hist-table tr:hover td{background:rgba(232,168,74,0.06);}
-  .col-fecha{width:58px;}
-  .col-tipo{width:22px;}
-  .col-pza{width:30px;}
-  .col-inq{width:auto;}
-  .col-eur{width:36px;text-align:right!important;}
-  .col-est{width:68px;}
-  .col-del{width:22px;text-align:center;}
-  .badge-cobrado{background:#dcf5ec;color:#0F6E56;padding:2px 5px;border-radius:3px;font-size:9px;white-space:nowrap;}
-  .badge-pend{background:#faeeda;color:#854F0B;padding:2px 5px;border-radius:3px;font-size:9px;white-space:nowrap;}
-  .empty-hist{text-align:center;color:#b08040;font-size:11px;font-family:'JetBrains Mono',monospace;padding:20px 0;}
-  .btn-del-pago{background:none;border:none;cursor:pointer;color:#d0a870;font-size:13px;line-height:1;padding:2px 3px;border-radius:4px;}
-  .btn-del-pago:hover{color:#e24b4a;background:#fcebeb;}
-  .ico-coch{color:#2a4abf;font-size:10px;}
-  .ico-piso{color:#0F6E56;font-size:10px;}
+.pill{min-height:36px;min-width:88px;padding:0 10px;border-radius:10px;font-size:12px;font-weight:600;font-family:var(--mono);flex-shrink:0;}
+.pill.ok{background:var(--ok-bg);color:var(--ok);} .pill.pend{background:var(--warn-bg);color:var(--warn);}
+.pill:active{transform:scale(.96);}
 
-  .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 12px;border-top:1.5px solid var(--color-border-secondary);background:var(--color-background-primary);}
-  .btn-save{padding:9px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:#1a1a2e;color:#fff;border:none;border-radius:7px;cursor:pointer;}
-  .btn-save:hover{opacity:0.85;}
-  .btn-excel{padding:9px;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;background:#185F2E;color:#fff;border:none;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
-  .btn-excel:hover{opacity:0.85;}
+.unit-id{font-family:var(--mono);font-size:20px;font-weight:700;min-width:52px;}
+.unit-id.cochera{color:var(--coch);} .unit-id.piso{color:var(--piso);}
+.badge{font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:6px;flex-shrink:0;}
+.badge.ocupada{background:var(--ok-bg);color:var(--ok);} .badge.libre{background:var(--muted-bg);color:var(--muted);}
+.badge.pendiente{background:var(--warn-bg);color:var(--warn);}
+.unit-meta{display:flex;gap:10px;margin-top:4px;font-size:12px;color:var(--text-2);font-family:var(--mono);flex-wrap:wrap;}
+.key-ok{color:var(--ok);} .key-no{color:var(--text-3);}
+.obs{font-size:12px;color:var(--text-3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic;}
 
-  .confirm-wrap{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.35);z-index:10;align-items:center;justify-content:center;}
-  .confirm-wrap.show{display:flex;}
-  .confirm-box{background:var(--color-background-primary);border:1.5px solid var(--color-border-secondary);border-radius:12px;padding:20px 20px 16px;width:260px;text-align:center;}
-  .confirm-box p{font-size:13px;color:var(--color-text-primary);margin-bottom:14px;line-height:1.5;}
-  .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .cbtn{padding:8px;border:none;border-radius:7px;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:500;}
-  .cbtn-cancel{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);}
-  .cbtn-del{background:#e24b4a;color:#fff;}
-  .panel-inner{position:relative;}
+.empty{text-align:center;padding:36px 16px;color:var(--text-3);font-size:14px;}
+.empty b{display:block;color:var(--text-2);font-size:15px;margin-bottom:4px;}
+.errbox{background:var(--danger-bg);color:var(--danger);border-radius:14px;padding:14px;font-size:14px;margin-bottom:12px;}
+.errbox button{margin-top:8px;min-height:40px;padding:0 14px;border-radius:10px;background:var(--danger);color:#fff;font-weight:600;}
 
-  .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 18px;border-radius:8px;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
-  .toast.show{opacity:1;}
-  .sync-dot{width:6px;height:6px;border-radius:50%;background:#888;display:inline-block;margin-left:6px;vertical-align:middle;}
-  .sync-dot.ok{background:#1D9E75;}
-  .sync-dot.err{background:#e24b4a;}
-  .sync-dot.syncing{background:#e8a84a;animation:pulse 0.8s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.skel{height:64px;border-radius:14px;background:linear-gradient(90deg,var(--surface) 0%,var(--surface-2) 50%,var(--surface) 100%);
+  background-size:200% 100%;animation:shimmer 1.2s infinite;border:1px solid var(--border);}
+@keyframes shimmer{to{background-position:-200% 0;}}
+
+/* ── Bottom nav + FAB ── */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--border);
+  padding:0 var(--sar) var(--sab) var(--sal);}
+.nav-in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);height:var(--nav-h);}
+.nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;color:var(--text-3);}
+.nav button svg{width:24px;height:24px;}
+.nav button.on[data-tab="pagos"]{color:var(--pago);}
+.nav button.on[data-tab="cochera"]{color:var(--coch);}
+.nav button.on[data-tab="piso"]{color:var(--piso);}
+.fab{position:fixed;z-index:31;right:calc(var(--sar) + 16px);bottom:calc(var(--nav-h) + var(--sab) + 14px);
+  height:56px;padding:0 20px 0 16px;border-radius:18px;display:flex;align-items:center;gap:8px;
+  color:#fff;font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.22);background:var(--pago);}
+.fab.cochera{background:#2a4abf;} .fab.piso{background:#0f7a5c;} .fab.pagos{background:#c07010;}
+.fab svg{width:22px;height:22px;}
+.fab:active{transform:scale(.96);}
+@media (min-width:700px){.fab{right:calc(50% - 320px + 16px);}}
+
+/* ── Bottom sheet ── */
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s;}
+.scrim.open{opacity:1;pointer-events:auto;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-width:640px;margin:0 auto;background:var(--surface);
+  border-radius:20px 20px 0 0;max-height:92dvh;display:flex;flex-direction:column;transform:translateY(105%);
+  transition:transform .25s ease;padding-left:var(--sal);padding-right:var(--sar);}
+.sheet.open{transform:none;}
+.sheet-h{display:flex;align-items:center;gap:8px;padding:8px 8px 4px 18px;flex-shrink:0;}
+.sheet-h h3{flex:1;font-size:17px;font-weight:700;}
+.sheet-h .icon-btn{color:var(--text-2);}
+.sheet-h .icon-btn:active{background:var(--surface-2);}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--border);margin:8px auto 0;flex-shrink:0;}
+.sheet-b{overflow-y:auto;padding:6px 18px 12px;-webkit-overflow-scrolling:touch;}
+.sheet-f{display:flex;gap:8px;padding:10px 18px calc(var(--sab) + 12px);border-top:1px solid var(--border);flex-shrink:0;background:var(--surface);}
+
+.field{margin-bottom:14px;}
+.field label,.lbl{display:block;font-size:12px;color:var(--text-2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;}
+.inp{width:100%;min-height:48px;font-size:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text);}
+.inp:focus{outline:none;border-color:var(--coch);box-shadow:0 0 0 3px color-mix(in srgb,var(--coch) 20%,transparent);}
+textarea.inp{min-height:84px;resize:vertical;line-height:1.4;}
+select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:3px;gap:3px;}
+.seg button{min-height:42px;border-radius:9px;font-size:15px;font-weight:600;color:var(--text-2);}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow);}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:0 12px;cursor:pointer;}
+.field label.switch{display:flex;margin:0;font-family:var(--sans);text-transform:none;letter-spacing:0;font-size:15px;color:var(--text);}
+.switch span{font-size:15px;}
+.switch input{appearance:none;-webkit-appearance:none;width:52px;height:32px;border-radius:16px;background:var(--border);position:relative;flex-shrink:0;cursor:pointer;transition:background .2s;}
+.switch input::after{content:'';position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s;}
+.switch input:checked{background:var(--ok);}
+.switch input:checked::after{transform:translateX(20px);}
+.hint{font-size:12px;color:var(--warn);margin-top:6px;}
+
+.btn{min-height:50px;border-radius:12px;font-size:16px;font-weight:700;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.btn:active{transform:scale(.98);}
+.btn-primary{flex:1;background:var(--brand);color:#fff;}
+@media (prefers-color-scheme:dark){.btn-primary{background:#eceef4;color:#14161f;}}
+.btn-danger{background:var(--danger-bg);color:var(--danger);}
+.btn-ghost{background:var(--surface-2);color:var(--text);}
+.spinner{width:18px;height:18px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.menu-list{display:flex;flex-direction:column;gap:6px;padding-bottom:6px;}
+.menu-item{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 12px;border-radius:12px;background:var(--surface-2);font-size:15px;font-weight:500;text-align:left;width:100%;}
+.menu-item:active{opacity:.7;}
+.menu-item svg{width:20px;height:20px;color:var(--text-2);flex-shrink:0;}
+.menu-item.danger{color:var(--danger);} .menu-item.danger svg{color:var(--danger);}
+.who{font-size:12px;color:var(--text-3);font-family:var(--mono);padding:4px 4px 12px;}
+
+/* ── Login ── */
+.login{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;
+  padding:calc(var(--sat) + 24px) calc(var(--sar) + 20px) calc(var(--sab) + 24px) calc(var(--sal) + 20px);max-width:420px;margin:0 auto;}
+.login .logo-big{width:72px;height:72px;border-radius:20px;margin-bottom:16px;}
+.login h1{font-size:26px;font-weight:700;margin-bottom:4px;}
+.login p.sub{color:var(--text-2);font-size:14px;margin-bottom:24px;}
+.login .btn-primary{width:100%;margin-top:4px;}
+.link-btn{min-height:44px;width:100%;color:var(--coch);font-size:14px;font-weight:600;margin-top:8px;}
+.login .msg{font-size:14px;margin-top:12px;text-align:center;}
+.login .msg.err{color:var(--danger);} .login .msg.ok{color:var(--ok);}
+
+/* ── Toast / iOS hint ── */
+.toast{position:fixed;left:50%;top:calc(var(--sat) + 12px);transform:translate(-50%,-10px);z-index:60;
+  background:#1a1a2e;color:#fff;font-size:14px;padding:10px 18px;border-radius:12px;opacity:0;transition:opacity .25s,transform .25s;
+  pointer-events:none;max-width:calc(100vw - 32px);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+.toast.err{background:var(--danger);} .toast.ok{background:#16855f;}
+.ios-hint{position:fixed;left:12px;right:12px;bottom:calc(var(--nav-h) + var(--sab) + 84px);z-index:40;max-width:616px;margin:0 auto;
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 14px 14px 16px;box-shadow:0 8px 28px rgba(0,0,0,.18);
+  display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;}
+.ios-hint .grow{flex:1;}
+.ios-hint .icon-btn{width:36px;height:36px;color:var(--text-3);}
 </style>
+</head>
+<body>
 
-<div class="calc" id="app">
-  <div class="calc-header">
-    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
-      <rect x="1" y="10" width="22" height="11" rx="2"/>
-      <path d="M1 10l3-7h16l3 7"/>
-      <line x1="7" y1="14" x2="7" y2="17"/><line x1="17" y1="14" x2="17" y2="17"/>
-    </svg>
-    <div>
-      <h1>Cocheras y Pisos <span class="sync-dot" id="sync-dot"></span></h1>
-      <p id="fecha-hoy"></p>
-    </div>
-  </div>
+<!-- ───────── LOGIN ───────── -->
+<section class="login" id="view-login" hidden>
+  <img class="logo-big" src="./icons/icon-192.png" alt="">
+  <h1>Cocheras y Pisos</h1>
+  <p class="sub">Inicia sesión para ver tus unidades y pagos.</p>
+  <form id="login-form" novalidate>
+    <div class="field"><label for="l-email">Email</label>
+      <input class="inp" id="l-email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" required></div>
+    <div class="field"><label for="l-pass">Contraseña</label>
+      <input class="inp" id="l-pass" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primary" type="submit" id="l-submit" data-net>Entrar</button>
+    <button class="link-btn" type="button" id="l-magic" data-net>Enviarme un enlace de acceso por email</button>
+  </form>
+  <p class="msg" id="l-msg"></p>
+</section>
 
-  <!-- SUMMARY BAR -->
-  <div class="summary-bar">
-    <div class="sum-cell"><div class="sum-label">Cocheras</div><div class="sum-val blue" id="s-coch">—</div></div>
-    <div class="sum-cell"><div class="sum-label">Pisos</div><div class="sum-val green" id="s-piso">—</div></div>
-    <div class="sum-cell"><div class="sum-label">€/mes</div><div class="sum-val green" id="s-ing">—</div></div>
-    <div class="sum-cell"><div class="sum-label">Llaves</div><div class="sum-val amber" id="s-llav">—</div></div>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab-btn amber-tab active" id="tab-pagos" onclick="switchTab('pagos')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      Pagos
-    </button>
-    <button class="tab-btn" id="tab-cocheras" onclick="switchTab('cocheras')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="10" width="22" height="11" rx="2"/><path d="M1 10l3-7h16l3 7"/></svg>
-      Cocheras
-    </button>
-    <button class="tab-btn green-tab" id="tab-pisos" onclick="switchTab('pisos')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Pisos
-    </button>
-  </div>
-
-  <!-- PANEL PAGOS -->
-  <div class="tab-panel active" id="panel-pagos">
-    <div class="pagos-panel">
-      <div class="pagos-header">
-        <div class="pagos-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        </div>
-        <span class="pagos-title">Registrar pago</span>
+<!-- ───────── APP ───────── -->
+<div id="view-app" hidden>
+  <header class="top">
+    <div class="top-row">
+      <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M3 10l9-7 9 7v10H3z"/><rect x="7" y="13" width="10" height="7"/></svg>
+      <div class="grow">
+        <h1>Cocheras y Pisos<span class="sync-dot" id="sync-dot"></span></h1>
+        <p id="fecha-hoy"></p>
       </div>
-      <div class="pago-row3">
-        <div>
-          <div class="pf-label" style="color:#a06010">Tipo</div>
-          <select class="pf-input" id="p-tipo" onchange="refreshPagoSelect()">
-            <option value="cochera">🚗 Cochera</option>
-            <option value="piso">🏠 Piso</option>
-          </select>
-        </div>
-        <div style="grid-column:span 2">
-          <div class="pf-label" style="color:#a06010">Unidad</div>
-          <select class="pf-input" id="p-plaza"></select>
-        </div>
-      </div>
-      <div class="pago-row">
-        <div>
-          <div class="pf-label" style="color:#a06010">Mes / Año</div>
-          <div class="mes-anio-wrap">
-            <select class="pf-input" id="p-mes-sel"></select>
-            <select class="pf-input" id="p-anio-sel"></select>
-          </div>
-        </div>
-        <div>
-          <div class="pf-label" style="color:#a06010">Importe (€)</div>
-          <div style="display:grid;grid-template-columns:1fr auto;gap:5px;align-items:flex-end;">
-            <input type="number" class="pf-input" id="p-imp" placeholder="0">
-            <button class="btn-pago" id="btn-add" style="white-space:nowrap">+ Añadir</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="hist-section">
-      <div class="hist-section-title">Historial — más reciente primero</div>
-      <div class="hist-filter">
-        <button class="hf-btn active" id="hf-all" onclick="setHFiltro('all')">Todos</button>
-        <button class="hf-btn" id="hf-cochera" onclick="setHFiltro('cochera')">🚗 Cocheras</button>
-        <button class="hf-btn" id="hf-piso" onclick="setHFiltro('piso')">🏠 Pisos</button>
-      </div>
-      <div class="hist-scroll">
-        <table class="hist-table">
-          <thead>
-            <tr>
-              <th class="col-fecha">Fecha</th>
-              <th class="col-tipo"></th>
-              <th class="col-pza">Ud.</th>
-              <th class="col-inq">Inquilino</th>
-              <th class="col-eur">€</th>
-              <th class="col-est">Estado</th>
-              <th class="col-del"></th>
-            </tr>
-          </thead>
-          <tbody id="hist-body"></tbody>
-        </table>
-        <div id="hist-empty" class="empty-hist" style="display:none">Sin pagos registrados</div>
-      </div>
-    </div>
-    <div style="height:12px;background:#fff8f0;"></div>
-  </div>
-
-  <!-- PANEL COCHERAS -->
-  <div class="tab-panel" id="panel-cocheras">
-    <div class="panel-inner" id="panel-coch-inner">
-      <div id="plazas-wrap"></div>
-      <button class="btn-nueva" id="btn-nueva-coch">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nueva cochera
+      <button class="icon-btn" id="btn-menu" aria-label="Menú">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
       </button>
-      <div class="confirm-wrap" id="confirm-coch-wrap">
-        <div class="confirm-box">
-          <p>¿Eliminar cochera <strong id="confirm-coch-name"></strong>?<br><span style="font-size:11px;color:var(--color-text-secondary)">Se borrarán sus pagos asociados.</span></p>
-          <div class="confirm-btns">
-            <button class="cbtn cbtn-cancel" onclick="closeConfirm('coch')">Cancelar</button>
-            <button class="cbtn cbtn-del" id="confirm-coch-del-btn">Eliminar</button>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+  </header>
+  <div class="offline" id="offline" hidden>Sin conexión · solo lectura, los cambios están desactivados</div>
 
-  <!-- PANEL PISOS -->
-  <div class="tab-panel" id="panel-pisos">
-    <div class="panel-inner" id="panel-piso-inner">
-      <div id="pisos-wrap"></div>
-      <button class="btn-nueva green" id="btn-nueva-piso">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nuevo piso
-      </button>
-      <div class="confirm-wrap" id="confirm-piso-wrap">
-        <div class="confirm-box">
-          <p>¿Eliminar piso <strong id="confirm-piso-name"></strong>?<br><span style="font-size:11px;color:var(--color-text-secondary)">Se borrarán sus pagos asociados.</span></p>
-          <div class="confirm-btns">
-            <button class="cbtn cbtn-cancel" onclick="closeConfirm('piso')">Cancelar</button>
-            <button class="cbtn cbtn-del" id="confirm-piso-del-btn">Eliminar</button>
-          </div>
-        </div>
-      </div>
+  <main>
+    <div class="summary">
+      <div class="sum"><div class="sum-l">Cocheras</div><div class="sum-v c" id="s-coch">—</div></div>
+      <div class="sum"><div class="sum-l">Pisos</div><div class="sum-v p" id="s-piso">—</div></div>
+      <div class="sum"><div class="sum-l">€/mes</div><div class="sum-v g" id="s-ing">—</div></div>
+      <div class="sum"><div class="sum-l">Llaves</div><div class="sum-v a" id="s-llav">—</div></div>
     </div>
-  </div>
+    <div id="err-wrap"></div>
 
-  <div class="actions-row">
-    <button class="btn-save" id="btn-save">💾 Guardar</button>
-    <button class="btn-excel" id="btn-excel">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Exportar Excel
-    </button>
-  </div>
+    <section id="tab-pagos">
+      <div class="section-h"><h2>Pagos</h2><span id="pend-total"></span></div>
+      <div class="chips" id="chips">
+        <button class="chip on" data-f="all">Todos</button>
+        <button class="chip" data-f="pend">Pendientes</button>
+        <button class="chip" data-f="cochera">🚗 Cocheras</button>
+        <button class="chip" data-f="piso">🏠 Pisos</button>
+      </div>
+      <div class="list" id="pagos-list"></div>
+    </section>
+
+    <section id="tab-cochera" hidden>
+      <div class="section-h"><h2>Cocheras</h2><span id="coch-count"></span></div>
+      <div class="list" id="cochera-list"></div>
+    </section>
+
+    <section id="tab-piso" hidden>
+      <div class="section-h"><h2>Pisos</h2><span id="piso-count"></span></div>
+      <div class="list" id="piso-list"></div>
+    </section>
+  </main>
+
+  <button class="fab pagos" id="fab" data-net>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span id="fab-label">Pago</span>
+  </button>
+
+  <nav class="nav">
+    <div class="nav-in">
+      <button data-tab="pagos" class="on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Pagos</button>
+      <button data-tab="cochera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="10" width="22" height="11" rx="2"/><path d="M1 10l3-7h16l3 7"/></svg>Cocheras</button>
+      <button data-tab="piso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Pisos</button>
+    </div>
+  </nav>
 </div>
-<div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-// ─── SUPABASE CONFIG ────────────────────────────────────────────────────────
-const SB_URL  = 'https://kcpmaxnfjmxsvvdeqmhy.supabase.co';
-const SB_KEY  = 'sb_publishable_x5n8nobY-gpZiJRbeJBBjQ_LIqInNs9';
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'apikey': SB_KEY,
-  'Authorization': `Bearer ${SB_KEY}`,
-  'Prefer': 'return=representation'
-};
+<!-- Sheet -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="grab"></div>
+  <div class="sheet-h">
+    <h3 id="sheet-title"></h3>
+    <button class="icon-btn" id="sheet-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-b" id="sheet-body"></div>
+  <div class="sheet-f" id="sheet-foot"></div>
+</div>
 
-async function sbGet(table) {
-  const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, { headers: HEADERS });
-  if (!r.ok) throw new Error(`GET ${table}: ${r.status}`);
-  return r.json();
-}
-async function sbUpsert(table, rows) {
-  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { ...HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify(rows)
-  });
-  if (!r.ok) { const t = await r.text(); throw new Error(`UPSERT ${table}: ${r.status} ${t}`); }
-  return r.json();
-}
-async function sbDelete(table, col, val) {
-  const r = await fetch(`${SB_URL}/rest/v1/${table}?${col}=eq.${encodeURIComponent(val)}`, {
-    method: 'DELETE', headers: HEADERS
-  });
-  if (!r.ok) throw new Error(`DELETE ${table}: ${r.status}`);
-}
-async function sbPatch(table, col, val, data) {
-  const r = await fetch(`${SB_URL}/rest/v1/${table}?${col}=eq.${encodeURIComponent(val)}`, {
-    method: 'PATCH', headers: HEADERS, body: JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error(`PATCH ${table}: ${r.status}`);
-}
+<div class="ios-hint" id="ios-hint" hidden>
+  <div class="grow"><b>Instala la app</b><br>Pulsa <b>Compartir</b> y luego <b>Añadir a pantalla de inicio</b>.</div>
+  <button class="icon-btn" id="ios-hint-close" aria-label="Cerrar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+  </button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-// ─── ESTADO ─────────────────────────────────────────────────────────────────
-const SK = 'cocheras_pisos_v2';
-const DEF_COCHERAS = [
-  {id:'165',inquilino:'Anabel',renta:80,estado:'ocupada',llave:false,obs:''},
-  {id:'164',inquilino:'Héctor',renta:80,estado:'ocupada',llave:false,obs:''},
-  {id:'57', inquilino:'',renta:0,estado:'libre',llave:false,obs:''},
-];
-const DEF_PISOS = [];
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-let plazas, pisos, pagos;
-let pendingDelCoch = null, pendingDelPiso = null;
-let histFiltro = 'all';
-
+// ─── CONFIG ─────────────────────────────────────────────────────────────
+const SB_URL = 'https://kcpmaxnfjmxsvvdeqmhy.supabase.co';
+const SB_KEY = 'sb_publishable_x5n8nobY-gpZiJRbeJBBjQ_LIqInNs9'; // clave pública (anon). Nunca service_role aquí.
+const sb = createClient(SB_URL, SB_KEY);
+const T = { cochera: 'cocheras2', piso: 'pisos2', pagos: 'pagos2' };
+const CACHE_KEY = 'cocheras_pisos_v3';
+const LABEL = { cochera: 'Cochera', piso: 'Piso' };
+const ICON = { cochera: '🚗', piso: '🏠' };
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MESES_CORTO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
-try {
-  const s = JSON.parse(localStorage.getItem(SK));
-  if (s && s.plazas) {
-    plazas = s.plazas.map(p => ({obs:'',...p}));
-    pisos  = (s.pisos||[]).map(p => ({obs:'',...p}));
-    pagos  = s.pagos || [];
-  } else throw 0;
-} catch(e) {
-  plazas = JSON.parse(JSON.stringify(DEF_COCHERAS));
-  pisos  = JSON.parse(JSON.stringify(DEF_PISOS));
-  pagos  = [];
+const state = { cochera: [], piso: [], pagos: [], tab: 'pagos', filtro: 'all', loading: true, error: null, user: null };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const num = v => { if (typeof v === 'number') return v; const n = parseFloat(String(v ?? '').trim().replace(',', '.')); return isFinite(n) ? n : 0; };
+const byId = (a, b) => String(a.id).localeCompare(String(b.id), 'es', { numeric: true });
+const fmtMes = m => { if (!m) return '—'; const [y, mo] = m.split('-'); return `${MESES[+mo - 1]} ${y}`; };
+const fmtMesCorto = m => { if (!m) return '—'; const [y, mo] = m.split('-'); return `${MESES_CORTO[+mo - 1]} ${y}`; };
+
+// ─── UI helpers ─────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, kind = '') {
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show ' + kind;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = 'toast ' + kind, 2600);
+}
+function setSync(s) { $('sync-dot').className = 'sync-dot ' + s; }
+function errMsg(e) {
+  if (!navigator.onLine) return 'Sin conexión';
+  const m = e?.message || String(e);
+  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'No se pudo conectar con el servidor';
+  if (/row-level security|permission denied/i.test(m)) return 'Sin permiso para esta operación (revisa RLS)';
+  if (/duplicate key/i.test(m)) return 'Ya existe un registro con ese número';
+  return m;
+}
+function applyNet() {
+  const on = navigator.onLine;
+  $('offline').hidden = on;
+  document.querySelectorAll('[data-net]').forEach(b => { if (!b.dataset.busy) b.disabled = !on; });
+}
+async function withBusy(btn, fn) {
+  const html = btn.innerHTML; btn.dataset.busy = '1'; btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try { return await fn(); }
+  finally { delete btn.dataset.busy; btn.innerHTML = html; btn.disabled = !navigator.onLine && btn.hasAttribute('data-net'); }
+}
+window.addEventListener('online', () => { applyNet(); toast('Conexión recuperada', 'ok'); if (state.user) fetchAll(); });
+window.addEventListener('offline', applyNet);
+
+// ─── Cache local (solo lectura sin conexión; la verdad es Supabase) ─────
+function saveCache() { try { localStorage.setItem(CACHE_KEY, JSON.stringify({ cochera: state.cochera, piso: state.piso, pagos: state.pagos, at: Date.now() })); } catch {} }
+function loadCache() {
+  try { const c = JSON.parse(localStorage.getItem(CACHE_KEY)); if (c) { state.cochera = c.cochera || []; state.piso = c.piso || []; state.pagos = c.pagos || []; return true; } } catch {}
+  return false;
 }
 
-function saveLocal() {
-  try { localStorage.setItem(SK, JSON.stringify({plazas, pisos, pagos})); } catch(e) {}
+// ─── Datos ──────────────────────────────────────────────────────────────
+async function fetchAll() {
+  setSync('syncing');
+  try {
+    const [c, p, g] = await Promise.all([
+      sb.from(T.cochera).select('*'), sb.from(T.piso).select('*'), sb.from(T.pagos).select('*')
+    ]);
+    const e = c.error || p.error || g.error; if (e) throw e;
+    state.cochera = c.data.sort(byId); state.piso = p.data.sort(byId); state.pagos = g.data;
+    state.error = null; saveCache(); setSync('ok');
+  } catch (e) {
+    console.error(e); setSync('err');
+    state.error = errMsg(e);
+  } finally { state.loading = false; render(); }
 }
 
-// ─── SYNC DOT ────────────────────────────────────────────────────────────────
-function setSyncDot(state) {
-  document.getElementById('sync-dot').className = 'sync-dot ' + state;
-}
-
-// ─── UI HELPERS ──────────────────────────────────────────────────────────────
-function toast(msg, color) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.background = color || '#1a1a2e';
-  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-function switchTab(tab) {
-  ['pagos','cocheras','pisos'].forEach(t => {
-    document.getElementById('panel-'+t).classList.toggle('active', t===tab);
-    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
-  });
-  if (tab==='pagos') refreshPagoSelect();
-}
-
-function updateSummary() {
-  const ocC  = plazas.filter(p => p.estado==='ocupada').length;
-  const ocP  = pisos.filter(p => p.estado==='ocupada').length;
-  const ingC = plazas.filter(p => p.estado==='ocupada').reduce((s,p) => s+(parseFloat(p.renta)||0), 0);
-  const ingP = pisos.filter(p => p.estado==='ocupada').reduce((s,p) => s+(parseFloat(p.renta)||0), 0);
-  const llC  = plazas.filter(p => p.llave).length;
-  const llP  = pisos.filter(p => p.llave).length;
-  document.getElementById('s-coch').textContent = `${ocC}/${plazas.length}`;
-  document.getElementById('s-piso').textContent = `${ocP}/${pisos.length}`;
-  document.getElementById('s-ing').textContent  = `${ingC+ingP}€`;
-  document.getElementById('s-llav').textContent = `${llC+llP}/${plazas.length+pisos.length}`;
-}
-
-function openConfirm(tipo, i) {
-  if (tipo==='coch') {
-    pendingDelCoch = i;
-    const p = plazas[i];
-    document.getElementById('confirm-coch-name').textContent = `#${p.id}${p.inquilino?' ('+p.inquilino+')':''}`;
-    document.getElementById('confirm-coch-wrap').classList.add('show');
-  } else {
-    pendingDelPiso = i;
-    const p = pisos[i];
-    document.getElementById('confirm-piso-name').textContent = `#${p.id}${p.inquilino?' ('+p.inquilino+')':''}`;
-    document.getElementById('confirm-piso-wrap').classList.add('show');
+async function saveUnit(tipo, oldId, data) {
+  const list = state[tipo];
+  if ((oldId === null || data.id !== oldId) && list.some(u => u.id === data.id))
+    throw new Error(`Ya existe ${tipo === 'piso' ? 'un piso' : 'una cochera'} con el número ${data.id}`);
+  const { error } = await sb.from(T[tipo]).upsert(data).select();
+  if (error) throw error;
+  if (oldId !== null && oldId !== data.id) {
+    let r = await sb.from(T.pagos).update({ plaza: data.id }).eq('tipo', tipo).eq('plaza', oldId);
+    if (r.error) throw r.error;
+    r = await sb.from(T[tipo]).delete().eq('id', oldId);
+    if (r.error) throw r.error;
   }
 }
-function closeConfirm(tipo) {
-  if (tipo==='coch') { pendingDelCoch=null; document.getElementById('confirm-coch-wrap').classList.remove('show'); }
-  else               { pendingDelPiso=null; document.getElementById('confirm-piso-wrap').classList.remove('show'); }
+async function deleteUnit(tipo, id) {
+  let r = await sb.from(T.pagos).delete().eq('tipo', tipo).eq('plaza', id);
+  if (r.error) throw r.error;
+  r = await sb.from(T[tipo]).delete().eq('id', id);
+  if (r.error) throw r.error;
 }
-
-// ─── RENDER COCHERAS ─────────────────────────────────────────────────────────
-function renderPlazas() {
-  const w = document.getElementById('plazas-wrap'); w.innerHTML = '';
-  plazas.forEach((p, i) => renderUnidad(w, p, i, 'coch'));
-  attachFieldListeners(w, plazas, 'coch');
+async function savePago(id, data) {
+  const q = id == null ? sb.from(T.pagos).insert(data) : sb.from(T.pagos).update(data).eq('id', id);
+  const { error } = await q.select(); if (error) throw error;
 }
+async function deletePago(id) { const { error } = await sb.from(T.pagos).delete().eq('id', id); if (error) throw error; }
 
-// ─── RENDER PISOS ────────────────────────────────────────────────────────────
-function renderPisos() {
-  const w = document.getElementById('pisos-wrap'); w.innerHTML = '';
-  pisos.forEach((p, i) => renderUnidad(w, p, i, 'piso'));
-  attachFieldListeners(w, pisos, 'piso');
+// ─── Render ─────────────────────────────────────────────────────────────
+function render() {
+  renderSummary(); renderErr();
+  renderPagos(); renderUnits('cochera'); renderUnits('piso');
+  applyNet();
 }
+function renderSummary() {
+  const oc = a => a.filter(u => u.estado === 'ocupada');
+  const ing = a => oc(a).reduce((s, u) => s + num(u.renta), 0);
+  const all = [...state.cochera, ...state.piso];
+  $('s-coch').textContent = `${oc(state.cochera).length}/${state.cochera.length}`;
+  $('s-piso').textContent = `${oc(state.piso).length}/${state.piso.length}`;
+  $('s-ing').textContent = eur.format(ing(state.cochera) + ing(state.piso)).replace(/\s?€/, '€');
+  $('s-llav').textContent = `${all.filter(u => u.llave).length}/${all.length}`;
+}
+function renderErr() {
+  $('err-wrap').innerHTML = state.error
+    ? `<div class="errbox">${esc(state.error)}${state.cochera.length || state.pagos.length ? ' · mostrando la última copia guardada' : ''}<br><button id="retry" data-net>Reintentar</button></div>` : '';
+  if (state.error) $('retry').onclick = e => withBusy(e.currentTarget, fetchAll);
+}
+const skeleton = n => Array.from({ length: n }, () => '<div class="skel"></div>').join('');
 
-function renderUnidad(container, p, i, tipo) {
-  const ec = p.estado;
-  const isPiso = tipo === 'piso';
-  const el = document.createElement('div');
-  el.innerHTML = `
-    <div class="plaza-sep ${tipo}">
-      <input class="sep-num-input${isPiso?' piso':''}" type="text" value="${p.id}" data-f="id" data-i="${i}" data-tipo="${tipo}" title="${isPiso?'Número piso':'Número cochera'}" maxlength="10">
-      <input class="sep-name-input${isPiso?' piso':''}" type="text" value="${p.inquilino}" data-f="inquilino" data-i="${i}" data-tipo="${tipo}" placeholder="${isPiso?'Sin inquilino':'Sin inquilino'}">
-      <span class="sep-estado ${ec}">${ec==='ocupada'?'Ocupada':ec==='libre'?'Libre':'Pendiente'}</span>
-      <button class="btn-del" data-del="${i}" data-tipo="${tipo}" title="Eliminar">✕</button>
-    </div>
-    <div class="plaza-fields">
-      <div class="pf">
-        <div class="pf-label">Renta €/mes</div>
-        <input class="pf-input${isPiso?' piso-input':''}" type="number" value="${p.renta}" min="0" data-f="renta" data-i="${i}" data-tipo="${tipo}">
+function renderPagos() {
+  const box = $('pagos-list');
+  const pend = state.pagos.filter(p => !p.cobrado).reduce((s, p) => s + num(p.importe), 0);
+  $('pend-total').textContent = pend ? `Pendiente ${eur.format(pend)}` : '';
+  if (state.loading && !state.pagos.length) { box.innerHTML = skeleton(4); return; }
+  let list = state.pagos;
+  if (state.filtro === 'pend') list = list.filter(p => !p.cobrado);
+  else if (state.filtro !== 'all') list = list.filter(p => p.tipo === state.filtro);
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><b>${state.pagos.length ? 'Nada con este filtro' : 'Sin pagos registrados'}</b>${state.pagos.length ? '' : 'Pulsa «+ Pago» para añadir el primero.'}</div>`;
+    return;
+  }
+  list = [...list].sort((a, b) => b.mes.localeCompare(a.mes) || String(a.plaza).localeCompare(String(b.plaza), 'es', { numeric: true }));
+  let html = '', cur = null;
+  for (const p of list) {
+    if (p.mes !== cur) {
+      cur = p.mes;
+      const tot = list.filter(x => x.mes === cur).reduce((s, x) => s + num(x.importe), 0);
+      html += `<div class="month-h">${fmtMes(cur)}<b>${eur.format(tot)}</b></div>`;
+    }
+    html += `<div class="card" data-pago="${esc(p.id)}" role="button" tabindex="0">
+      <div class="ico ${p.tipo}">${ICON[p.tipo] || '🚗'}</div>
+      <div class="c-main">
+        <div class="c-title">${LABEL[p.tipo] || 'Cochera'} ${esc(p.plaza)} <span class="c-amt">· ${eur.format(num(p.importe))}</span></div>
+        <div class="c-sub">${esc(p.nombre && p.nombre !== '—' ? p.nombre : 'Sin inquilino')}</div>
       </div>
-      <div class="pf">
-        <div class="pf-label">Estado</div>
-        <select class="pf-input${isPiso?' piso-input':''}" data-f="estado" data-i="${i}" data-tipo="${tipo}">
-          <option value="ocupada" ${ec==='ocupada'?'selected':''}>Ocupada</option>
-          <option value="libre" ${ec==='libre'?'selected':''}>Libre</option>
-          <option value="pendiente" ${ec==='pendiente'?'selected':''}>Pendiente</option>
-        </select>
-      </div>
-      <div class="pf" style="grid-column:1/-1">
-        <div class="pf-label">Llave entregada</div>
-        <label class="key-row ${p.llave?'has-key':''}" data-i="${i}" data-tipo="${tipo}">
-          <input type="checkbox" data-f="llave" data-i="${i}" data-tipo="${tipo}" ${p.llave?'checked':''}>
-          <span>${p.llave?'Entregada':'Pendiente'}</span>
-        </label>
-      </div>
-    </div>
-    <div class="obs-row">
-      <div class="pf-label">Observaciones</div>
-      <textarea class="obs-textarea${isPiso?' piso-input':''}" data-f="obs" data-i="${i}" data-tipo="${tipo}" placeholder="Notas...">${p.obs||''}</textarea>
+      <button class="pill ${p.cobrado ? 'ok' : 'pend'}" data-toggle="${esc(p.id)}" data-net>${p.cobrado ? '✓ Cobrado' : 'Pendiente'}</button>
     </div>`;
-  container.appendChild(el);
-}
-
-function attachFieldListeners(w, arr, tipo) {
-  w.querySelectorAll('[data-f]').forEach(el => {
-    const ev = el.tagName==='TEXTAREA' ? 'input' : 'change';
-    el.addEventListener(ev, e => {
-      const i = +e.target.dataset.i, f = e.target.dataset.f;
-      if (f==='llave') {
-        arr[i].llave = e.target.checked;
-        const lbl = e.target.closest('.key-row');
-        lbl.classList.toggle('has-key', arr[i].llave);
-        lbl.querySelector('span').textContent = arr[i].llave ? 'Entregada' : 'Pendiente';
-      } else if (f==='renta') {
-        arr[i].renta = parseFloat(e.target.value) || 0;
-      } else if (f==='estado') {
-        arr[i].estado = e.target.value;
-        const badge = e.target.closest('.plaza-fields').previousElementSibling.querySelector('.sep-estado');
-        badge.className = `sep-estado ${arr[i].estado}`;
-        badge.textContent = arr[i].estado==='ocupada'?'Ocupada':arr[i].estado==='libre'?'Libre':'Pendiente';
-      } else {
-        arr[i][f] = e.target.value;
-        if (f==='id' || f==='inquilino') refreshPagoSelect();
-      }
-      updateSummary();
-    });
-  });
-  w.querySelectorAll('[data-del]').forEach(btn => {
-    btn.addEventListener('click', e => openConfirm(e.target.dataset.tipo, +e.target.dataset.del));
-  });
-}
-
-// ─── CONFIRMAR ELIMINACIÓN ───────────────────────────────────────────────────
-document.getElementById('confirm-coch-del-btn').addEventListener('click', async () => {
-  if (pendingDelCoch===null) return;
-  const pid = plazas[pendingDelCoch].id;
-  plazas.splice(pendingDelCoch, 1);
-  pagos = pagos.filter(p => !(p.tipo==='cochera' && p.plaza===pid));
-  closeConfirm('coch');
-  try { await sbDelete('cocheras2', 'id', pid); } catch(e) { console.error(e); }
-  saveLocal(); renderPlazas(); renderHist(); updateSummary(); refreshPagoSelect();
-  toast('Cochera eliminada', '#e24b4a');
-});
-
-document.getElementById('confirm-piso-del-btn').addEventListener('click', async () => {
-  if (pendingDelPiso===null) return;
-  const pid = pisos[pendingDelPiso].id;
-  pisos.splice(pendingDelPiso, 1);
-  pagos = pagos.filter(p => !(p.tipo==='piso' && p.plaza===pid));
-  closeConfirm('piso');
-  try { await sbDelete('pisos2', 'id', pid); } catch(e) { console.error(e); }
-  saveLocal(); renderPisos(); renderHist(); updateSummary(); refreshPagoSelect();
-  toast('Piso eliminado', '#e24b4a');
-});
-
-// ─── PAGO SELECT ─────────────────────────────────────────────────────────────
-function refreshPagoSelect() {
-  const tipo = document.getElementById('p-tipo').value;
-  const arr  = tipo === 'cochera' ? plazas : pisos;
-  const sel  = document.getElementById('p-plaza');
-  const cur  = sel.value;
-  sel.innerHTML = arr.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${p.id}${p.inquilino?' – '+p.inquilino:''}</option>`).join('');
-}
-
-// ─── HISTORIAL FILTRO ────────────────────────────────────────────────────────
-function setHFiltro(f) {
-  histFiltro = f;
-  ['all','cochera','piso'].forEach(k => {
-    document.getElementById('hf-'+k).classList.toggle('active', k===f);
-  });
-  renderHist();
-}
-
-// ─── HISTORIAL ───────────────────────────────────────────────────────────────
-function fmtMes(m) {
-  if (!m) return '—';
-  const [y, mo] = m.split('-');
-  return MESES_CORTO[+mo-1] + ' ' + y;
-}
-
-function renderHist() {
-  const tbody = document.getElementById('hist-body');
-  const empty = document.getElementById('hist-empty');
-  let filtered = pagos;
-  if (histFiltro !== 'all') filtered = pagos.filter(p => p.tipo === histFiltro);
-  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display = 'none';
-  const indexed = filtered.map((p, _) => ({ p, real: pagos.indexOf(p) }));
-  const sorted = indexed.sort((a,b) => b.p.mes.localeCompare(a.p.mes));
-  tbody.innerHTML = sorted.map(({p, real}) => `
-    <tr>
-      <td class="col-fecha">${fmtMes(p.mes)}</td>
-      <td class="col-tipo">${p.tipo==='piso'?'🏠':'🚗'}</td>
-      <td class="col-pza"><strong>${p.plaza}</strong></td>
-      <td class="col-inq" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px">${p.nombre||'—'}</td>
-      <td class="col-eur" style="text-align:right;font-weight:500">${parseFloat(p.importe).toFixed(0)}</td>
-      <td class="col-est">
-        <label style="cursor:pointer;display:flex;align-items:center;gap:3px;">
-          <input type="checkbox" ${p.cobrado?'checked':''} data-pi="${real}" style="accent-color:#1D9E75;width:11px;height:11px;cursor:pointer;flex-shrink:0;">
-          <span class="${p.cobrado?'badge-cobrado':'badge-pend'}">${p.cobrado?'Cobrado':'Pend.'}</span>
-        </label>
-      </td>
-      <td class="col-del">
-        <button class="btn-del-pago" data-delpago="${real}" title="Eliminar">✕</button>
-      </td>
-    </tr>`).join('');
-
-  tbody.querySelectorAll('[data-pi]').forEach(cb => {
-    cb.addEventListener('change', async e => {
-      const idx = +e.target.dataset.pi;
-      pagos[idx].cobrado = e.target.checked;
-      if (pagos[idx].sb_id) {
-        try { await sbPatch('pagos2', 'id', pagos[idx].sb_id, {cobrado: pagos[idx].cobrado}); } catch(err) { console.error(err); }
-      }
-      saveLocal(); renderHist();
-    });
-  });
-
-  tbody.querySelectorAll('[data-delpago]').forEach(btn => {
-    btn.addEventListener('click', async e => {
-      const idx = +e.target.dataset.delpago;
-      const pago = pagos[idx];
-      if (pago.sb_id) {
-        try { await sbDelete('pagos2', 'id', pago.sb_id); } catch(err) { console.error(err); }
-      }
-      pagos.splice(idx, 1);
-      saveLocal(); renderHist();
-      toast('Pago eliminado', '#e24b4a');
-    });
-  });
-}
-
-// ─── AÑADIR PAGO ─────────────────────────────────────────────────────────────
-function getMesValor() {
-  const m = document.getElementById('p-mes-sel').value;
-  const y = document.getElementById('p-anio-sel').value;
-  return `${y}-${m}`;
-}
-
-document.getElementById('btn-add').addEventListener('click', async () => {
-  const tipo = document.getElementById('p-tipo').value;
-  const pl   = document.getElementById('p-plaza').value;
-  const mes  = getMesValor();
-  const imp  = parseFloat(document.getElementById('p-imp').value);
-  if (!mes || !imp) { toast('Rellena mes e importe', '#BA7517'); return; }
-  const arr  = tipo === 'cochera' ? plazas : pisos;
-  const unit = arr.find(x => x.id===pl);
-  const nuevoPago = {tipo, plaza:pl, nombre:(unit&&unit.inquilino)||'—', mes, importe:imp, cobrado:false};
-  try {
-    setSyncDot('syncing');
-    const res = await sbUpsert('pagos2', [nuevoPago]);
-    if (Array.isArray(res) && res[0]) nuevoPago.sb_id = res[0].id;
-    setSyncDot('ok');
-  } catch(err) { setSyncDot('err'); console.error(err); }
-  pagos.push(nuevoPago);
-  document.getElementById('p-imp').value = '';
-  saveLocal(); renderHist();
-  toast(`Pago ${tipo} añadido ✓`, '#e8a84a');
-});
-
-// ─── BOTÓN NUEVA COCHERA / PISO ───────────────────────────────────────────────
-document.getElementById('btn-nueva-coch').addEventListener('click', () => {
-  const newId = String(Math.floor(Math.random()*900)+100);
-  plazas.push({id:newId, inquilino:'', renta:0, estado:'libre', llave:false, obs:''});
-  saveLocal(); renderPlazas(); updateSummary(); refreshPagoSelect();
-  document.getElementById('plazas-wrap').lastElementChild?.scrollIntoView({behavior:'smooth', block:'nearest'});
-  toast('Nueva cochera añadida', '#2a4abf');
-});
-
-document.getElementById('btn-nueva-piso').addEventListener('click', () => {
-  const newId = String(Math.floor(Math.random()*900)+100);
-  pisos.push({id:newId, inquilino:'', renta:0, estado:'libre', llave:false, obs:''});
-  saveLocal(); renderPisos(); updateSummary(); refreshPagoSelect();
-  document.getElementById('pisos-wrap').lastElementChild?.scrollIntoView({behavior:'smooth', block:'nearest'});
-  toast('Nuevo piso añadido', '#1D9E75');
-});
-
-// ─── GUARDAR SUPABASE ─────────────────────────────────────────────────────────
-async function saveToSupabase() {
-  setSyncDot('syncing');
-  try {
-    await sbUpsert('cocheras2', plazas.map(p => ({
-      id:p.id, inquilino:p.inquilino||'', renta:parseFloat(p.renta)||0,
-      estado:p.estado, llave:!!p.llave, obs:p.obs||''
-    })));
-    await sbUpsert('pisos2', pisos.map(p => ({
-      id:p.id, inquilino:p.inquilino||'', renta:parseFloat(p.renta)||0,
-      estado:p.estado, llave:!!p.llave, obs:p.obs||''
-    })));
-    if (pagos.length) {
-      const pagoRows = pagos.map(p => {
-        const row = {tipo:p.tipo||'cochera', plaza:p.plaza, nombre:p.nombre||'—', mes:p.mes,
-                     importe:parseFloat(p.importe), cobrado:!!p.cobrado};
-        if (p.sb_id) row.id = p.sb_id;
-        return row;
-      });
-      const res = await sbUpsert('pagos2', pagoRows);
-      if (Array.isArray(res)) res.forEach((row, i) => { if (pagos[i] && row.id) pagos[i].sb_id = row.id; });
-    }
-    saveLocal();
-    setSyncDot('ok');
-    toast('Guardado en Supabase ✓', '#1D9E75');
-  } catch(err) {
-    setSyncDot('err');
-    toast('Error Supabase: ' + err.message, '#e24b4a');
-    console.error(err);
   }
+  box.innerHTML = html;
 }
 
-// ─── CARGAR SUPABASE ──────────────────────────────────────────────────────────
-async function loadFromSupabase() {
-  setSyncDot('syncing');
-  try {
-    const [dbCoch, dbPisos, dbPagos] = await Promise.all([
-      sbGet('cocheras2'), sbGet('pisos2'), sbGet('pagos2')
-    ]);
-    if (dbCoch.length || dbPisos.length) {
-      plazas = dbCoch.map(p => ({obs:'',...p}));
-      pisos  = dbPisos.map(p => ({obs:'',...p}));
-      pagos  = dbPagos.map(p => ({...p, sb_id:p.id}));
-      saveLocal();
-    }
-    setSyncDot('ok');
-  } catch(err) {
-    setSyncDot('err');
-    toast('Sin conexión, usando caché local', '#BA7517');
-    console.error(err);
+function renderUnits(tipo) {
+  const box = $(tipo + '-list'), list = state[tipo];
+  const oc = list.filter(u => u.estado === 'ocupada').length;
+  $(tipo === 'piso' ? 'piso-count' : 'coch-count').textContent = list.length ? `${oc} de ${list.length} ocupad${tipo === 'piso' ? 'os' : 'as'}` : '';
+  if (state.loading && !list.length) { box.innerHTML = skeleton(3); return; }
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><b>Sin ${tipo === 'piso' ? 'pisos' : 'cocheras'}</b>Pulsa «+ ${LABEL[tipo]}» para añadir.</div>`;
+    return;
   }
-  renderPlazas(); renderPisos(); renderHist(); updateSummary(); refreshPagoSelect();
+  const est = { ocupada: 'Ocupada', libre: 'Libre', pendiente: 'Pendiente' };
+  box.innerHTML = list.map(u => `
+    <button class="card" data-unit="${esc(u.id)}" data-tipo="${tipo}">
+      <div class="unit-id ${tipo}">${esc(u.id)}</div>
+      <div class="c-main">
+        <div class="c-title">${u.inquilino ? esc(u.inquilino) : '<span style="color:var(--text-3)">Sin inquilino</span>'}</div>
+        <div class="unit-meta">
+          <span>${eur.format(num(u.renta))}/mes</span>
+          <span class="${u.llave ? 'key-ok' : 'key-no'}">${u.llave ? '🔑 Llave entregada' : 'Llave pendiente'}</span>
+        </div>
+        ${u.obs ? `<div class="obs">${esc(u.obs)}</div>` : ''}
+      </div>
+      <span class="badge ${esc(u.estado)}">${est[u.estado] || esc(u.estado)}</span>
+    </button>`).join('');
 }
 
-// ─── EXCEL ────────────────────────────────────────────────────────────────────
-document.getElementById('btn-excel').addEventListener('click', () => {
+// ─── Tabs ───────────────────────────────────────────────────────────────
+function setTab(tab) {
+  state.tab = tab;
+  ['pagos', 'cochera', 'piso'].forEach(t => $('tab-' + t).hidden = t !== tab);
+  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('fab').className = 'fab ' + tab;
+  $('fab-label').textContent = tab === 'pagos' ? 'Pago' : LABEL[tab];
+  window.scrollTo({ top: 0 });
+}
+document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+$('chips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  state.filtro = c.dataset.f;
+  document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c));
+  renderPagos(); applyNet();
+});
+$('fab').addEventListener('click', () => state.tab === 'pagos' ? openPago(null) : openUnit(state.tab, null));
+
+// Clicks en listas
+$('pagos-list').addEventListener('click', async e => {
+  const tg = e.target.closest('[data-toggle]');
+  if (tg) {
+    e.stopPropagation();
+    const p = state.pagos.find(x => String(x.id) === tg.dataset.toggle); if (!p) return;
+    await withBusy(tg, async () => {
+      try { await savePago(p.id, { cobrado: !p.cobrado }); p.cobrado = !p.cobrado; saveCache(); toast(p.cobrado ? 'Marcado como cobrado' : 'Marcado como pendiente', 'ok'); }
+      catch (err) { toast(errMsg(err), 'err'); }
+    });
+    renderPagos(); applyNet(); return;
+  }
+  const card = e.target.closest('[data-pago]');
+  if (card) openPago(state.pagos.find(x => String(x.id) === card.dataset.pago));
+});
+['cochera', 'piso'].forEach(t => $(t + '-list').addEventListener('click', e => {
+  const c = e.target.closest('[data-unit]'); if (!c) return;
+  openUnit(t, state[t].find(u => String(u.id) === c.dataset.unit));
+}));
+
+// ─── Bottom sheet ───────────────────────────────────────────────────────
+const sheet = $('sheet'), scrim = $('scrim');
+let lastFocus = null;
+function openSheet(title, body, foot) {
+  lastFocus = document.activeElement;
+  $('sheet-title').textContent = title; $('sheet-body').innerHTML = body;
+  $('sheet-foot').innerHTML = foot; $('sheet-foot').hidden = !foot;
+  sheet.classList.add('open'); scrim.classList.add('open'); document.body.style.overflow = 'hidden';
+  $('sheet-body').scrollTop = 0; fitSheet(); applyNet();
+}
+function closeSheet() {
+  sheet.classList.remove('open'); scrim.classList.remove('open'); document.body.style.overflow = '';
+  sheet.style.bottom = ''; sheet.style.maxHeight = '';
+  if (document.activeElement) document.activeElement.blur();
+  lastFocus?.focus?.({ preventScroll: true });
+}
+$('sheet-close').addEventListener('click', closeSheet);
+scrim.addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet(); });
+// Mantener el botón de guardar por encima del teclado (iOS/Android)
+function fitSheet() {
+  const vv = window.visualViewport; if (!vv || !sheet.classList.contains('open')) return;
+  const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  sheet.style.bottom = kb + 'px';
+  sheet.style.maxHeight = (kb ? vv.height - 8 : vv.height * 0.92) + 'px';
+}
+window.visualViewport?.addEventListener('resize', fitSheet);
+window.visualViewport?.addEventListener('scroll', fitSheet);
+
+// ─── Hoja: unidad ───────────────────────────────────────────────────────
+function openUnit(tipo, u) {
+  const isNew = !u; const d = u || { id: '', inquilino: '', renta: '', estado: 'libre', llave: false, obs: '' };
+  const name = LABEL[tipo].toLowerCase();
+  openSheet(isNew ? `Nuev${tipo === 'piso' ? 'o' : 'a'} ${name}` : `${LABEL[tipo]} ${d.id}`, `
+    <form id="f-unit" novalidate>
+      <div class="row2">
+        <div class="field"><label for="u-id">Número</label>
+          <input class="inp" id="u-id" value="${esc(d.id)}" maxlength="10" autocomplete="off" autocapitalize="characters" enterkeyhint="next" required></div>
+        <div class="field"><label for="u-renta">Renta €/mes</label>
+          <input class="inp" id="u-renta" type="text" inputmode="decimal" value="${d.renta === '' ? '' : esc(d.renta)}" placeholder="0" autocomplete="off" enterkeyhint="next"></div>
+      </div>
+      <div class="field"><label for="u-inq">Inquilino</label>
+        <input class="inp" id="u-inq" value="${esc(d.inquilino)}" placeholder="Sin inquilino" autocomplete="off" autocapitalize="words" enterkeyhint="done"></div>
+      <div class="field"><label for="u-estado">Estado</label>
+        <select class="inp" id="u-estado">
+          ${['ocupada', 'libre', 'pendiente'].map(v => `<option value="${v}" ${d.estado === v ? 'selected' : ''}>${v[0].toUpperCase() + v.slice(1)}</option>`).join('')}
+        </select></div>
+      <div class="field"><label class="switch"><span>Llave entregada</span><input type="checkbox" id="u-llave" ${d.llave ? 'checked' : ''}></label></div>
+      <div class="field"><label for="u-obs">Observaciones</label>
+        <textarea class="inp" id="u-obs" placeholder="Notas…">${esc(d.obs)}</textarea></div>
+      <p class="hint" id="u-err" hidden></p>
+    </form>`,
+    `${isNew ? '' : '<button class="btn btn-danger" id="u-del" data-net aria-label="Eliminar">Eliminar</button>'}
+     <button class="btn btn-primary" id="u-save" data-net>Guardar</button>`);
+
+  const save = async () => {
+    const data = {
+      id: $('u-id').value.trim(), inquilino: $('u-inq').value.trim(), renta: num($('u-renta').value),
+      estado: $('u-estado').value, llave: $('u-llave').checked, obs: $('u-obs').value.trim()
+    };
+    if (!data.id) { $('u-err').textContent = 'Indica el número'; $('u-err').hidden = false; $('u-id').focus(); return; }
+    await withBusy($('u-save'), async () => {
+      try { await saveUnit(tipo, isNew ? null : u.id, data); closeSheet(); toast(`${LABEL[tipo]} ${data.id} guardad${tipo === 'piso' ? 'o' : 'a'}`, 'ok'); await fetchAll(); }
+      catch (e) { $('u-err').textContent = errMsg(e); $('u-err').hidden = false; }
+    });
+  };
+  $('u-save').addEventListener('click', save);
+  $('f-unit').addEventListener('submit', e => { e.preventDefault(); save(); });
+  $('u-del')?.addEventListener('click', async e => {
+    const n = state.pagos.filter(p => p.tipo === tipo && p.plaza === u.id).length;
+    if (!confirm(`¿Eliminar ${name} ${u.id}${u.inquilino ? ' (' + u.inquilino + ')' : ''}?${n ? `\nSe borrarán también sus ${n} pagos.` : ''}`)) return;
+    await withBusy(e.currentTarget, async () => {
+      try { await deleteUnit(tipo, u.id); closeSheet(); toast(`${LABEL[tipo]} eliminad${tipo === 'piso' ? 'o' : 'a'}`); await fetchAll(); }
+      catch (err) { toast(errMsg(err), 'err'); }
+    });
+  });
+  if (isNew) setTimeout(() => $('u-id').focus(), 260);
+}
+
+// ─── Hoja: pago ─────────────────────────────────────────────────────────
+function openPago(p) {
+  const isNew = !p; const hoy = new Date();
+  const d = p || { tipo: state.tipoPago || 'cochera', plaza: '', mes: `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`, importe: '', cobrado: false };
+  let tipo = d.tipo;
+  const [yy, mm] = d.mes.split('-');
+  const anios = new Set([hoy.getFullYear() - 2, hoy.getFullYear() - 1, hoy.getFullYear(), hoy.getFullYear() + 1, +yy]);
+  openSheet(isNew ? 'Registrar pago' : `Pago ${LABEL[d.tipo] || ''} ${d.plaza}`, `
+    <form id="f-pago" novalidate>
+      <div class="field"><span class="lbl">Tipo</span>
+        <div class="seg" id="p-tipo">
+          <button type="button" data-t="cochera">🚗 Cochera</button><button type="button" data-t="piso">🏠 Piso</button>
+        </div></div>
+      <div class="field"><label for="p-unidad">Unidad</label><select class="inp" id="p-unidad"></select></div>
+      <div class="row2">
+        <div class="field"><label for="p-mes">Mes</label>
+          <select class="inp" id="p-mes">${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${String(i + 1).padStart(2, '0') === mm ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+        <div class="field"><label for="p-anio">Año</label>
+          <select class="inp" id="p-anio">${[...anios].sort().map(a => `<option ${String(a) === yy ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label for="p-imp">Importe (€)</label>
+        <input class="inp" id="p-imp" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="${d.importe === '' ? '' : esc(d.importe)}" enterkeyhint="done"></div>
+      <div class="field"><label class="switch"><span>Cobrado</span><input type="checkbox" id="p-cob" ${d.cobrado ? 'checked' : ''}></label></div>
+      <p class="hint" id="p-err" hidden></p>
+    </form>`,
+    `${isNew ? '' : '<button class="btn btn-danger" id="p-del" data-net>Eliminar</button>'}
+     <button class="btn btn-primary" id="p-save" data-net>${isNew ? 'Añadir pago' : 'Guardar'}</button>`);
+
+  const fillUnits = (keepPlaza) => {
+    document.querySelectorAll('#p-tipo button').forEach(b => b.classList.toggle('on', b.dataset.t === tipo));
+    const list = state[tipo];
+    const sel = $('p-unidad');
+    sel.innerHTML = list.length
+      ? list.map(u => `<option value="${esc(u.id)}">${esc(u.id)}${u.inquilino ? ' – ' + esc(u.inquilino) : ''}</option>`).join('')
+      : `<option value="">No hay ${tipo === 'piso' ? 'pisos' : 'cocheras'}</option>`;
+    if (keepPlaza && list.some(u => u.id === keepPlaza)) sel.value = keepPlaza;
+    else if (!keepPlaza) { const occ = list.find(u => u.estado === 'ocupada'); if (occ) sel.value = occ.id; }
+    if (isNew) prefill();
+  };
+  const prefill = () => {
+    const u = state[tipo].find(x => x.id === $('p-unidad').value);
+    if (u && num(u.renta)) $('p-imp').value = String(num(u.renta)).replace('.', ',');
+  };
+  fillUnits(d.plaza || null);
+  $('p-tipo').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tipo = b.dataset.t; state.tipoPago = tipo; fillUnits(null); });
+  $('p-unidad').addEventListener('change', () => { if (isNew) prefill(); });
+
+  const save = async () => {
+    const plaza = $('p-unidad').value, mes = `${$('p-anio').value}-${$('p-mes').value}`, importe = num($('p-imp').value);
+    const err = m => { $('p-err').textContent = m; $('p-err').hidden = false; };
+    if (!plaza) return err('Elige una unidad');
+    if (!importe) return err('Indica el importe');
+    const dup = state.pagos.find(x => x.tipo === tipo && x.plaza === plaza && x.mes === mes && (isNew || x.id !== p.id));
+    if (dup && !confirm(`Ya hay un pago de ${eur.format(num(dup.importe))} para ${LABEL[tipo].toLowerCase()} ${plaza} en ${fmtMes(mes)}. ¿Añadir otro igualmente?`)) return;
+    const u = state[tipo].find(x => x.id === plaza);
+    const data = { tipo, plaza, mes, importe, cobrado: $('p-cob').checked };
+    if (isNew || plaza !== p.plaza || tipo !== p.tipo) data.nombre = (u && u.inquilino) || '—';
+    await withBusy($('p-save'), async () => {
+      try { await savePago(isNew ? null : p.id, data); closeSheet(); toast(isNew ? 'Pago añadido' : 'Pago actualizado', 'ok'); await fetchAll(); }
+      catch (e) { err(errMsg(e)); }
+    });
+  };
+  $('p-save').addEventListener('click', save);
+  $('f-pago').addEventListener('submit', e => { e.preventDefault(); save(); });
+  $('p-del')?.addEventListener('click', async e => {
+    if (!confirm(`¿Eliminar el pago de ${fmtMes(p.mes)} (${eur.format(num(p.importe))})?`)) return;
+    await withBusy(e.currentTarget, async () => {
+      try { await deletePago(p.id); closeSheet(); toast('Pago eliminado'); await fetchAll(); }
+      catch (err) { toast(errMsg(err), 'err'); }
+    });
+  });
+}
+
+// ─── Menú ───────────────────────────────────────────────────────────────
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; });
+window.addEventListener('appinstalled', () => { deferredInstall = null; toast('App instalada', 'ok'); });
+
+$('btn-menu').addEventListener('click', () => {
+  const ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p}</svg>`;
+  openSheet('Menú', `
+    <div class="who">${esc(state.user?.email || '')}</div>
+    <div class="menu-list">
+      <button class="menu-item" id="m-reload" data-net>${ic('<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>')}Recargar datos</button>
+      <button class="menu-item" id="m-excel">${ic('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>')}Exportar Excel</button>
+      ${deferredInstall ? `<button class="menu-item" id="m-install">${ic('<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>')}Instalar app</button>` : ''}
+      <button class="menu-item danger" id="m-out">${ic('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>')}Cerrar sesión</button>
+    </div>`, '');
+  $('m-reload').onclick = e => withBusy(e.currentTarget, async () => { await fetchAll(); closeSheet(); if (!state.error) toast('Datos actualizados', 'ok'); });
+  $('m-excel').onclick = () => { closeSheet(); exportExcel(); };
+  $('m-install')?.addEventListener('click', async () => { closeSheet(); deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; });
+  $('m-out').onclick = async () => { closeSheet(); await sb.auth.signOut(); };
+});
+
+// ─── Excel ──────────────────────────────────────────────────────────────
+async function loadXLSX() {
+  if (window.XLSX) return window.XLSX;
+  await new Promise((ok, ko) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload = ok; s.onerror = () => ko(new Error('No se pudo cargar la librería de Excel'));
+    document.head.appendChild(s);
+  });
+  return window.XLSX;
+}
+async function exportExcel() {
   try {
+    const XLSX = await loadXLSX();
     const wb = XLSX.utils.book_new();
-    // Cocheras
-    const wsCoch = XLSX.utils.aoa_to_sheet([
-      ['Cochera','Inquilino','Renta €/mes','Estado','Llave','Observaciones'],
-      ...plazas.map(p => [p.id, p.inquilino||'Libre', p.renta, p.estado, p.llave?'Sí':'No', p.obs||''])
+    const unitSheet = (tipo, titulo) => {
+      const ws = XLSX.utils.aoa_to_sheet([
+        [titulo, 'Inquilino', 'Renta €/mes', 'Estado', 'Llave', 'Observaciones'],
+        ...state[tipo].map(u => [u.id, u.inquilino || 'Libre', num(u.renta), u.estado, u.llave ? 'Sí' : 'No', u.obs || ''])
+      ]);
+      ws['!cols'] = [{ wch: 10 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 32 }];
+      XLSX.utils.book_append_sheet(wb, ws, titulo === 'Cochera' ? 'Cocheras' : 'Pisos');
+    };
+    unitSheet('cochera', 'Cochera'); unitSheet('piso', 'Piso');
+    const pagos = [...state.pagos].sort((a, b) => b.mes.localeCompare(a.mes));
+    const wsP = XLSX.utils.aoa_to_sheet([
+      ['Mes', 'Tipo', 'Unidad', 'Inquilino', 'Importe €', 'Cobrado'],
+      ...pagos.map(p => [fmtMesCorto(p.mes), LABEL[p.tipo] || 'Cochera', p.plaza, p.nombre || '—', num(p.importe), p.cobrado ? 'Sí' : 'No'])
     ]);
-    wsCoch['!cols'] = [{wch:10},{wch:14},{wch:14},{wch:12},{wch:8},{wch:28}];
-    XLSX.utils.book_append_sheet(wb, wsCoch, 'Cocheras');
-    // Pisos
-    const wsPiso = XLSX.utils.aoa_to_sheet([
-      ['Piso','Inquilino','Renta €/mes','Estado','Llave','Observaciones'],
-      ...pisos.map(p => [p.id, p.inquilino||'Libre', p.renta, p.estado, p.llave?'Sí':'No', p.obs||''])
+    wsP['!cols'] = [{ wch: 10 }, { wch: 10 }, { wch: 8 }, { wch: 16 }, { wch: 10 }, { wch: 8 }];
+    XLSX.utils.book_append_sheet(wb, wsP, 'Pagos');
+    const oc = a => a.filter(u => u.estado === 'ocupada');
+    const ing = a => oc(a).reduce((s, u) => s + num(u.renta), 0);
+    const ingC = ing(state.cochera), ingP = ing(state.piso);
+    const wsD = XLSX.utils.aoa_to_sheet([
+      ['Dashboard', ''], ['Fecha exportación', new Date().toLocaleDateString('es-ES')], ['', ''],
+      ['Cocheras ocupadas', `${oc(state.cochera).length}/${state.cochera.length}`],
+      ['Pisos ocupados', `${oc(state.piso).length}/${state.piso.length}`],
+      ['Ingresos cocheras €/mes', ingC], ['Ingresos pisos €/mes', ingP],
+      ['Ingresos totales €/mes', ingC + ingP], ['Ingresos totales €/año', (ingC + ingP) * 12],
+      ['Pendiente de cobro €', state.pagos.filter(p => !p.cobrado).reduce((s, p) => s + num(p.importe), 0)]
     ]);
-    wsPiso['!cols'] = [{wch:10},{wch:14},{wch:14},{wch:12},{wch:8},{wch:28}];
-    XLSX.utils.book_append_sheet(wb, wsPiso, 'Pisos');
-    // Pagos todos
-    const sorted = [...pagos].sort((a,b) => b.mes.localeCompare(a.mes));
-    const wsPagos = XLSX.utils.aoa_to_sheet([
-      ['Mes','Tipo','Unidad','Inquilino','Importe €','Cobrado'],
-      ...sorted.map(p => [fmtMes(p.mes), p.tipo==='piso'?'Piso':'Cochera', p.plaza, p.nombre||'—', p.importe, p.cobrado?'Sí':'No'])
-    ]);
-    wsPagos['!cols'] = [{wch:10},{wch:10},{wch:8},{wch:14},{wch:10},{wch:8}];
-    XLSX.utils.book_append_sheet(wb, wsPagos, 'Pagos');
-    // Dashboard
-    const ingC = plazas.filter(p=>p.estado==='ocupada').reduce((s,p)=>s+(parseFloat(p.renta)||0),0);
-    const ingP = pisos.filter(p=>p.estado==='ocupada').reduce((s,p)=>s+(parseFloat(p.renta)||0),0);
-    const wsDash = XLSX.utils.aoa_to_sheet([
-      ['Dashboard',''],
-      ['Fecha exportación', new Date().toLocaleDateString('es-ES')], ['',''],
-      ['Cocheras ocupadas', `${plazas.filter(p=>p.estado==='ocupada').length}/${plazas.length}`],
-      ['Pisos ocupados',    `${pisos.filter(p=>p.estado==='ocupada').length}/${pisos.length}`],
-      ['Ingresos cocheras €/mes', ingC],
-      ['Ingresos pisos €/mes',    ingP],
-      ['Ingresos totales €/mes',  ingC+ingP],
-      ['Ingresos totales €/año',  (ingC+ingP)*12],
-    ]);
-    wsDash['!cols'] = [{wch:24},{wch:14}];
-    XLSX.utils.book_append_sheet(wb, wsDash, 'Dashboard');
-    XLSX.writeFile(wb, 'cocheras_pisos.xlsx');
-    toast('Excel descargado', '#185F2E');
-  } catch(err) { toast('Error al exportar', '#A32D2D'); }
-});
-
-document.getElementById('btn-save').addEventListener('click', () => saveToSupabase());
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-function buildMesAnioSelects() {
-  const selMes  = document.getElementById('p-mes-sel');
-  const selAnio = document.getElementById('p-anio-sel');
-  const hoy = new Date();
-  selMes.innerHTML  = MESES.map((m,i) => `<option value="${String(i+1).padStart(2,'0')}">${m}</option>`).join('');
-  const anioBase = hoy.getFullYear();
-  selAnio.innerHTML = [-1,0,1,2].map(d => `<option value="${anioBase+d}">${anioBase+d}</option>`).join('');
-  selMes.value  = String(hoy.getMonth()+1).padStart(2,'0');
-  selAnio.value = String(anioBase);
+    wsD['!cols'] = [{ wch: 26 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, wsD, 'Dashboard');
+    XLSX.writeFile(wb, `cocheras_pisos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast('Excel descargado', 'ok');
+  } catch (e) { console.error(e); toast(errMsg(e), 'err'); }
 }
 
-const hoy = new Date();
-document.getElementById('fecha-hoy').textContent = hoy.toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'numeric'});
-buildMesAnioSelects();
-loadFromSupabase();
+// ─── Login ──────────────────────────────────────────────────────────────
+const lmsg = (t, k = 'err') => { $('l-msg').textContent = t; $('l-msg').className = 'msg ' + k; };
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('l-email').value.trim(), password = $('l-pass').value;
+  if (!email || !password) return lmsg('Escribe email y contraseña');
+  await withBusy($('l-submit'), async () => {
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) lmsg(/invalid/i.test(error.message) ? 'Email o contraseña incorrectos' : errMsg(error));
+    else lmsg('');
+  });
+});
+$('l-magic').addEventListener('click', async e => {
+  const email = $('l-email').value.trim();
+  if (!email) { lmsg('Escribe tu email primero'); $('l-email').focus(); return; }
+  await withBusy(e.currentTarget, async () => {
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: false } });
+    if (error) lmsg(errMsg(error));
+    else lmsg(isStandalone() && isIOS()
+      ? 'Enlace enviado. Ojo: en iPhone se abrirá en Safari, no en la app instalada; aquí es mejor usar la contraseña.'
+      : 'Enlace enviado. Revisa tu correo.', 'ok');
+  });
+});
+
+function showView(logged) {
+  $('view-login').hidden = logged; $('view-app').hidden = !logged; applyNet();
+}
+let started = false;
+sb.auth.onAuthStateChange((ev, session) => {
+  // no hacer awaits dentro del callback (recomendación de supabase-js)
+  setTimeout(() => {
+    state.user = session?.user || null;
+    if (!state.user) {
+      started = false; state.cochera = []; state.piso = []; state.pagos = [];
+      try { localStorage.removeItem(CACHE_KEY); } catch {}
+      showView(false); return;
+    }
+    showView(true);
+    if (!started || ev === 'SIGNED_IN') {
+      started = true; state.loading = true;
+      if (loadCache()) state.loading = true;
+      render(); fetchAll(); maybeIOSHint();
+    }
+  }, 0);
+});
+
+// ─── Instalación / SW ───────────────────────────────────────────────────
+function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function isStandalone() { return navigator.standalone === true || matchMedia('(display-mode: standalone)').matches; }
+function maybeIOSHint() {
+  try {
+    if (!isIOS() || isStandalone() || localStorage.getItem('ios_hint_shown')) return;
+    $('ios-hint').hidden = false; localStorage.setItem('ios_hint_shown', '1');
+  } catch {}
+}
+$('ios-hint-close').addEventListener('click', () => $('ios-hint').hidden = true);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
+}
+
+$('fecha-hoy').textContent = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+applyNet();
 </script>
+</body>
 </html>
